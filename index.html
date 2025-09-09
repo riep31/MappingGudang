@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Peta Gudang - Dynamic</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f23;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: #1a1a2e;
+      border-bottom: 1px solid #2d3748;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .header h1 {
+      color: #f7fafc;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    
+    .datetime-display {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 500;
+      border: 1px solid #4a5568;
+      min-width: 200px;
+      text-align: center;
+    }
+    
+    .datetime-display .date {
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+    
+    .datetime-display .time {
+      font-size: 0.85rem;
+      color: #a0aec0;
+    }
+    
+    .refresh-btn {
+      background: #2b6cb0;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: 1px solid #3182ce;
+    }
+    
+    .refresh-btn:hover {
+      background: #3182ce;
+      transform: translateY(-1px);
+    }
+    
+    .refresh-btn:active {
+      transform: translateY(0);
+    }
+    
+    .refresh-btn.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    
+    .refresh-btn.loading .refresh-icon {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .filters-container {
+      background: #1a1a2e;
+      border-bottom: 1px solid #2d3748;
+      padding: 24px;
+    }
+    
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .filter-label {
+      color: #f7fafc;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    
+    .filter-select {
+      background: #2d3748;
+      border: 1px solid #4a5568;
+      color: #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .filter-select:hover {
+      border-color: #63b3ed;
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: #3182ce;
+      box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    }
+    
+    .filter-select option {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 8px;
+    }
+    
+    .filter-actions {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    
+    .apply-filter-btn {
+      background: #38a169;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 1px solid #48bb78;
+    }
+    
+    .apply-filter-btn:hover {
+      background: #48bb78;
+      transform: translateY(-1px);
+    }
+    
+    .clear-filter-btn {
+      background: #e53e3e;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 1px solid #f56565;
+    }
+    
+    .clear-filter-btn:hover {
+      background: #f56565;
+      transform: translateY(-1px);
+    }
+    
+    .active-filters {
+      margin-top: 16px;
+      padding: 16px;
+      background: #2d3748;
+      border-radius: 12px;
+      border: 1px solid #4a5568;
+      display: none;
+    }
+    
+    .active-filters.show {
+      display: block;
+    }
+    
+    .active-filters h4 {
+      color: #f7fafc;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .filter-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-tag {
+      background: #3182ce;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .main-content {
+      padding: 32px 24px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    .warehouse-container {
+      background: #1a1a2e;
+      border: 1px solid #2d3748;
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .no-data-message {
+      text-align: center;
+      padding: 40px;
+      color: #a0aec0;
+      font-size: 1.1rem;
+    }
+    
+    .floor-section {
+      margin-bottom: 40px;
+    }
+    
+    .floor-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .floor-title {
+      color: #f7fafc;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center;
+      padding: 8px;
+    }
+    
+    .racking-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .racking-header {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid #4a5568;
+    }
+    
+    .slot {
+      background: #2d3748;
+      border: 1px solid #4a5568;
+      color: #a0aec0;
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .slot:hover {
+      transform: translateY(-2px);
+      border-color: #63b3ed;
+      box-shadow: 0 4px 12px rgba(99, 179, 237, 0.2);
+    }
+    
+    .status-aman { 
+      background: #22543d;
+      border-color: #38a169;
+      color: #9ae6b4;
+    }
+    
+    .status-menipis { 
+      background: #744210;
+      border-color: #d69e2e;
+      color: #faf089;
+    }
+    
+    .status-habis { 
+      background: #742a2a;
+      border-color: #e53e3e;
+      color: #feb2b2;
+    }
+    
+    .detail-panel {
+      background: #1a1a2e;
+      border: 1px solid #2d3748;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+    
+    .detail-panel h3 {
+      color: #f7fafc;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #2d3748;
+      padding-bottom: 8px;
+    }
+    
+    .detail-info p {
+      margin: 12px 0;
+      padding: 8px 0;
+      border-bottom: 1px solid #2d3748;
+      color: #e2e8f0;
+    }
+    
+    .detail-info p:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-info strong {
+      color: #63b3ed;
+      margin-right: 8px;
+    }
+    
+    .status-legend {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #2d3748;
+      border: 1px solid #4a5568;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      color: #e2e8f0;
+    }
+    
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid #4a5568;
+    }
+    
+    .legend-aman { background: #22543d; }
+    .legend-menipis { background: #744210; }
+    .legend-habis { background: #742a2a; }
+    .legend-kosong { background: #2d3748; }
+    
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        text-align: center;
+        padding: 16px;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .filters-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .filter-actions {
+        justify-content: center;
+      }
+      
+      .main-content {
+        padding: 16px;
+      }
+      
+      .racking-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+      }
+      
+      .slot {
+        font-size: 0.7rem;
+        min-height: 50px;
+        padding: 4px 2px;
+      }
+      
+      .racking-header {
+        font-size: 0.7rem;
+        padding: 6px 4px;
+      }
+      
+      .status-legend {
+        gap: 12px;
+      }
+      
+      .legend-item {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <h1>📦 Dynamic Warehouse Mapping System</h1>
+  <div class="header-controls">
+    <div class="datetime-display">
+      <div class="date" id="current-date"></div>
+      <div class="time" id="current-time"></div>
+    </div>
+    <button class="refresh-btn" onclick="refreshData()">
+      <span class="refresh-icon">↻</span>
+      Refresh
+    </button>
+  </div>
+</header>
+
+<div class="filters-container">
+  <div class="filters-grid">
+    <div class="filter-group">
+      <label class="filter-label" for="warehouse-filter">Warehouse Location</label>
+      <select class="filter-select" id="warehouse-filter">
+        <option value="">All Warehouses</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label class="filter-label" for="storage-filter">Storage Option</label>
+      <select class="filter-select" id="storage-filter">
+        <option value="">All Storage Options</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label class="filter-label" for="zona-filter">Zona</label>
+      <select class="filter-select" id="zona-filter">
+        <option value="">All Zones</option>
+      </select>
+    </div>
+    
+    <div class="filter-actions">
+      <button class="apply-filter-btn" onclick="applyFilters()">Apply Filters</button>
+      <button class="clear-filter-btn" onclick="clearFilters()">Clear All</button>
+    </div>
+  </div>
+  
+  <div class="active-filters" id="active-filters">
+    <h4>Active Filters:</h4>
+    <div class="filter-tags" id="filter-tags"></div>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="warehouse-container">
+    <div id="warehouse"></div>
+    
+    <div class="status-legend">
+      <div class="legend-item">
+        <div class="legend-color legend-aman"></div>
+        <span>Stock Safe</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-menipis"></div>
+        <span>Low Stock</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-habis"></div>
+        <span>Out of Stock</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-kosong"></div>
+        <span>Empty Slot</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-panel">
+    <h3>Slot Information</h3>
+    <div class="detail-info" id="info">
+      <p>Click any slot to view detailed information</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// === CONFIGURATION ===
+const sheetID = "1ngP7PTE4mNKtkcTQU5sRYswdYmdC401M4ioxxkt-Hxw";
+const sheetName = "MAPPING";
+const apiKey = "AIzaSyD3nhZyvd7npQw6n9mPXxOA6svJdo_JQis";
+const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!A1:K1000?key=${apiKey}`;
+
+// === DATA STORAGE ===
+let allSheetData = []; // Store all data
+let filteredData = []; // Store filtered data
+let currentFilters = {
+  warehouse: '',
+  storage: '',
+  zona: ''
+};
+
+// Update date and time
+function updateDateTime() {
+  const now = new Date();
+  
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  
+  const dayName = days[now.getDay()];
+  const day = now.getDate();
+  const month = months[now.getMonth()];
+  const year = now.getFullYear();
+  
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  document.getElementById('current-date').textContent = `${dayName}, ${day} ${month} ${year}`;
+  document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds} WIB`;
+}
+
+// Convert slot to code
+function generateKode(racking, floor, raws) {
+  const rawsOrder = { "BELAKANG": 1, "TENGAH": 2, "DEPAN": 3 };
+  const rawsUpper = (raws || "").toUpperCase().trim();
+  const offset = (3 - floor) * 3;
+  const index = offset + (rawsOrder[rawsUpper] || 0);
+  const rakLabel = racking.replace("Racking ", "").trim();
+  return rakLabel + index;
+}
+
+// Get unique values for dropdown filters
+function getUniqueValues(data, field) {
+  const values = data
+    .map(item => item[field])
+    .filter(value => value && value.trim() !== '')
+    .filter((value, index, array) => array.indexOf(value) === index)
+    .sort();
+  return values;
+}
+
+// Populate filter dropdowns
+function populateFilters() {
+  const warehouseSelect = document.getElementById('warehouse-filter');
+  const storageSelect = document.getElementById('storage-filter');
+  const zonaSelect = document.getElementById('zona-filter');
+  
+  // Clear existing options (except "All" option)
+  warehouseSelect.innerHTML = '<option value="">All Warehouses</option>';
+  storageSelect.innerHTML = '<option value="">All Storage Options</option>';
+  zonaSelect.innerHTML = '<option value="">All Zones</option>';
+  
+  // Get unique values
+  const warehouses = getUniqueValues(allSheetData, 'warehouse');
+  const storages = getUniqueValues(allSheetData, 'storage');
+  const zonas = getUniqueValues(allSheetData, 'zona');
+  
+  // Populate warehouse options
+  warehouses.forEach(warehouse => {
+    const option = document.createElement('option');
+    option.value = warehouse;
+    option.textContent = warehouse;
+    warehouseSelect.appendChild(option);
+  });
+  
+  // Populate storage options
+  storages.forEach(storage => {
+    const option = document.createElement('option');
+    option.value = storage;
+    option.textContent = storage;
+    storageSelect.appendChild(option);
+  });
+  
+  // Populate zona options
+  zonas.forEach(zona => {
+    const option = document.createElement('option');
+    option.value = zona;
+    option.textContent = zona;
+    zonaSelect.appendChild(option);
+  });
+  
+  console.log('✓ Filters populated:', {
+    warehouses: warehouses.length,
+    storages: storages.length, 
+    zonas: zonas.length
+  });
+}
+
+// Apply filters
+function applyFilters() {
+  const warehouseFilter = document.getElementById('warehouse-filter').value;
+  const storageFilter = document.getElementById('storage-filter').value;
+  const zonaFilter = document.getElementById('zona-filter').value;
+  
+  // Update current filters
+  currentFilters = {
+    warehouse: warehouseFilter,
+    storage: storageFilter,
+    zona: zonaFilter
+  };
+  
+  // Filter data
+  filteredData = allSheetData.filter(item => {
+    const matchWarehouse = !warehouseFilter || item.warehouse === warehouseFilter;
+    const matchStorage = !storageFilter || item.storage === storageFilter;
+    const matchZona = !zonaFilter || item.zona === zonaFilter;
+    
+    return matchWarehouse && matchStorage && matchZona;
+  });
+  
+  // Update active filters display
+  updateActiveFiltersDisplay();
+  
+  // Re-render grid with filtered data
+  renderGrid();
+  
+  console.log('✓ Filters applied:', {
+    total: allSheetData.length,
+    filtered: filteredData.length,
+    filters: currentFilters
+  });
+}
+
+// Clear all filters
+function clearFilters() {
+  document.getElementById('warehouse-filter').value = '';
+  document.getElementById('storage-filter').value = '';
+  document.getElementById('zona-filter').value = '';
+  
+  currentFilters = {
+    warehouse: '',
+    storage: '',
+    zona: ''
+  };
+  
+  filteredData = allSheetData;
+  updateActiveFiltersDisplay();
+  renderGrid();
+  
+  console.log('✓ Filters cleared');
+}
+
+// Update active filters display
+function updateActiveFiltersDisplay() {
+  const activeFiltersDiv = document.getElementById('active-filters');
+  const filterTagsDiv = document.getElementById('filter-tags');
+  
+  const activeTags = [];
+  
+  if (currentFilters.warehouse) {
+    activeTags.push(`Warehouse: ${currentFilters.warehouse}`);
+  }
+  if (currentFilters.storage) {
+    activeTags.push(`Storage: ${currentFilters.storage}`);
+  }
+  if (currentFilters.zona) {
+    activeTags.push(`Zone: ${currentFilters.zona}`);
+  }
+  
+  if (activeTags.length > 0) {
+    activeFiltersDiv.classList.add('show');
+    filterTagsDiv.innerHTML = activeTags
+      .map(tag => `<span class="filter-tag">${tag}</span>`)
+      .join('');
+  } else {
+    activeFiltersDiv.classList.remove('show');
+  }
+}
+
+// Load data from Google Sheets API
+async function loadData() {
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+
+    const rows = json.values;
+    const headers = rows[0];
+    const dataRows = rows.slice(1);
+
+    allSheetData = dataRows.map(r => {
+      const rowObj = {};
+      headers.forEach((h, i) => rowObj[h] = r[i] || "");
+      return {
+        warehouse: rowObj["Warehouse Location"],
+        storage: rowObj["Storage Option"],
+        zona: rowObj["Zona"],
+        rackingCode: rowObj["Racking Code"],
+        racking: rowObj["Racking"],
+        floor: Number(rowObj["Floor"]),
+        raws: rowObj["Raws"],
+        barang: (rowObj["Item Description"] || "").split("-").slice(0,2).join("-").trim(),
+        qty: rowObj["Qty"],
+        expired: rowObj["Expired Date"],
+        status: (rowObj["Status"] || "").toLowerCase()
+      };
+    });
+
+    // Initialize filtered data with all data
+    filteredData = allSheetData;
+    
+    // Populate filter dropdowns
+    populateFilters();
+    
+    // Render grid
+    renderGrid();
+    
+    console.log('✓ Data loaded successfully:', allSheetData.length, 'items');
+  } catch (error) {
+    console.error('✗ Error loading data:', error);
+    document.getElementById('info').innerHTML = 
+      '<p style="color: #e53e3e;">Failed to load data. Please check connection and try again.</p>';
+  }
+}
+
+// Refresh data with animation
+async function refreshData() {
+  const btn = document.querySelector('.refresh-btn');
+  btn.classList.add('loading');
+  
+  try {
+    await loadData();
+    setTimeout(() => {
+      btn.classList.remove('loading');
+    }, 500);
+  } catch (error) {
+    btn.classList.remove('loading');
+  }
+}
+
+// Render warehouse grid
+function renderGrid() {
+  const warehouse = document.getElementById("warehouse");
+  warehouse.innerHTML = "";
+  
+  // Check if there's filtered data
+  if (filteredData.length === 0) {
+    warehouse.innerHTML = '<div class="no-data-message">No data found matching the current filters.</div>';
+    return;
+  }
+
+  const racks = "ABCDEFGHIJKL".split("");
+  
+  const floors = [
+    { title: "Floor 3", rows: [1, 2, 3] },
+    { title: "Floor 2", rows: [4, 5, 6] },
+    { title: "Floor 1", rows: [7, 8, 9] }
+  ];
+
+  floors.forEach(floor => {
+    const floorSection = document.createElement("div");
+    floorSection.className = "floor-section";
+    
+    const floorTitle = document.createElement("div");
+    floorTitle.className = "floor-title";
+    floorTitle.textContent = floor.title;
+    floorSection.appendChild(floorTitle);
+    
+    // Racking headers
+    const headerGrid = document.createElement("div");
+    headerGrid.className = "racking-grid";
+    racks.forEach(rak => {
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "racking-header";
+      headerDiv.textContent = `Rack ${rak}`;
+      headerGrid.appendChild(headerDiv);
+    });
+    floorSection.appendChild(headerGrid);
+
+    // Render slot rows for this floor
+    floor.rows.forEach(rowNum => {
+      const rowGrid = document.createElement("div");
+      rowGrid.className = "racking-grid";
+      
+      racks.forEach(rak => {
+        const kode = rak + rowNum;
+        // Use filtered data instead of all data
+        const slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
+
+        const div = document.createElement("div");
+        div.className = "slot";
+
+        if (slotData && slotData.barang) {
+          div.textContent = slotData.barang;
+          if (slotData.status.includes("aman")) div.classList.add("status-aman");
+          if (slotData.status.includes("menipis")) div.classList.add("status-menipis");
+          if (slotData.status.includes("habis")) div.classList.add("status-habis");
+          div.title = `${kode} | ${slotData.barang} (Qty: ${slotData.qty})`;
+          div.onclick = () => showDetail(kode, slotData);
+        } else {
+          div.textContent = kode;
+          div.onclick = () => showDetail(kode, null);
+        }
+
+        rowGrid.appendChild(div);
+      });
+      
+      floorSection.appendChild(rowGrid);
+    });
+    
+    warehouse.appendChild(floorSection);
+  });
+}
+
+// Show slot details
+function showDetail(kode, data) {
+  const info = document.getElementById("info");
+  if (data) {
+    const statusIcon = data.status.includes("aman") ? "✓" : 
+                      data.status.includes("menipis") ? "⚠" : 
+                      data.status.includes("habis") ? "✗" : "■";
+    
+    info.innerHTML = `
+      <p><strong>Slot:</strong> ${kode}</p>
+      <p><strong>Warehouse:</strong> ${data.warehouse}</p>
+      <p><strong>Storage:</strong> ${data.storage}</p>
+      <p><strong>Zone:</strong> ${data.zona}</p>
+      <p><strong>Racking:</strong> ${data.racking}</p>
+      <p><strong>Floor:</strong> ${data.floor}</p>
+      <p><strong>Position:</strong> ${data.raws}</p>
+      <p><strong>Item:</strong> ${data.barang}</p>
+      <p><strong>Quantity:</strong> ${data.qty}</p>
+      <p><strong>Expired:</strong> ${data.expired}</p>
+      <p><strong>Status:</strong> ${statusIcon} ${data.status.toUpperCase()}</p>
+    `;
+  } else {
+    info.innerHTML = `
+      <p><strong>Slot:</strong> ${kode}</p>
+      <p><strong>Status:</strong> EMPTY</p>
+      <p style="color: #a0aec0; font-style: italic;">This slot is available for new items</p>
+    `;
+  }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+  loadData();
+});
+</script>
+
+</body>
+</html>
