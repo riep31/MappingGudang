@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Peta Gudang - Dynamic</title>
+  <title>Mapping Gudang</title>
   <style>
     * {
       margin: 0;
@@ -31,7 +31,7 @@
     .header h1 {
       color: #f7fafc;
       font-size: 1.8rem;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: -0.025em;
     }
     
@@ -262,7 +262,7 @@
     .floor-title {
       color: #f7fafc;
       font-size: 1.1rem;
-      font-weight: 600;
+      font-weight: 800;
       margin-bottom: 16px;
       text-align: center;
       padding: 8px;
@@ -270,19 +270,18 @@
     
     .racking-grid {
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(14, 1fr);
+      gap: 10px;
       margin-bottom: 8px;
     }
     
     .racking-header {
-      background: #2d3748;
-      color: #e2e8f0;
+      background: #48deea;
+      color: #000;
       padding: 8px;
       text-align: center;
       font-size: 0.8rem;
-      font-weight: 600;
-      border-radius: 8px;
+      font-weight: 700;
       border: 1px solid #4a5568;
     }
     
@@ -309,19 +308,19 @@
       box-shadow: 0 4px 12px rgba(99, 179, 237, 0.2);
     }
     
-    .status-aman { 
+    .status-terisi { 
       background: #22543d;
       border-color: #38a169;
       color: #9ae6b4;
     }
     
-    .status-menipis { 
-      background: #744210;
-      border-color: #d69e2e;
-      color: #faf089;
+    .status-kosong { 
+      background: #2d3748;
+      border-color: #4a5568;
+      color: #a0aec0;
     }
     
-    .status-habis { 
+    .status-kosong-sheet { 
       background: #742a2a;
       border-color: #e53e3e;
       color: #feb2b2;
@@ -387,10 +386,9 @@
       border: 1px solid #4a5568;
     }
     
-    .legend-aman { background: #22543d; }
-    .legend-menipis { background: #744210; }
-    .legend-habis { background: #742a2a; }
+    .legend-terisi { background: #22543d; }
     .legend-kosong { background: #2d3748; }
+    .legend-kosong-sheet { background: #742a2a; }
     
     @media (max-width: 768px) {
       .header {
@@ -417,19 +415,25 @@
       }
       
       .racking-grid {
-        grid-template-columns: repeat(6, 1fr);
-        gap: 4px;
+        grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+        gap: 2px;
+        overflow-x: auto;
       }
       
       .slot {
-        font-size: 0.7rem;
-        min-height: 50px;
-        padding: 4px 2px;
+        font-size: 0.65rem;
+        min-height: 45px;
+        padding: 2px 1px;
+        word-break: break-all;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       
       .racking-header {
-        font-size: 0.7rem;
-        padding: 6px 4px;
+        font-size: 0.65rem;
+        padding: 4px 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       
       .status-legend {
@@ -446,7 +450,7 @@
 <body>
 
 <header class="header">
-  <h1>📦 Dynamic Warehouse Mapping System</h1>
+  <h1>Warehouse Mapping System</h1>
   <div class="header-controls">
     <div class="datetime-display">
       <div class="date" id="current-date"></div>
@@ -500,26 +504,22 @@
     
     <div class="status-legend">
       <div class="legend-item">
-        <div class="legend-color legend-aman"></div>
-        <span>Stock Safe</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color legend-menipis"></div>
-        <span>Low Stock</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color legend-habis"></div>
-        <span>Out of Stock</span>
+        <div class="legend-color legend-terisi"></div>
+        <span>Racking Terisi</span>
       </div>
       <div class="legend-item">
         <div class="legend-color legend-kosong"></div>
-        <span>Empty Slot</span>
+        <span>Racking Belum Ada Data</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-kosong-sheet"></div>
+        <span>Racking Kosong</span>
       </div>
     </div>
   </div>
 
   <div class="detail-panel">
-    <h3>Slot Information</h3>
+    <h3>Racking Information</h3>
     <div class="detail-info" id="info">
       <p>Click any slot to view detailed information</p>
     </div>
@@ -534,7 +534,7 @@ const apiKey = "AIzaSyD3nhZyvd7npQw6n9mPXxOA6svJdo_JQis";
 const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!A1:K1000?key=${apiKey}`;
 
 // === DATA STORAGE ===
-let allSheetData = []; // Store all data
+let allSheetData = []; // Store all data from sheet
 let filteredData = []; // Store filtered data
 let currentFilters = {
   warehouse: '',
@@ -594,7 +594,7 @@ function populateFilters() {
   storageSelect.innerHTML = '<option value="">All Storage Options</option>';
   zonaSelect.innerHTML = '<option value="">All Zones</option>';
   
-  // Get unique values
+  // Get unique values from allSheetData
   const warehouses = getUniqueValues(allSheetData, 'warehouse');
   const storages = getUniqueValues(allSheetData, 'storage');
   const zonas = getUniqueValues(allSheetData, 'zona');
@@ -643,7 +643,7 @@ function applyFilters() {
     zona: zonaFilter
   };
   
-  // Filter data
+  // Filter data from allSheetData
   filteredData = allSheetData.filter(item => {
     const matchWarehouse = !warehouseFilter || item.warehouse === warehouseFilter;
     const matchStorage = !storageFilter || item.storage === storageFilter;
@@ -677,11 +677,11 @@ function clearFilters() {
     zona: ''
   };
   
-  filteredData = allSheetData;
+  filteredData = []; // Reset to empty to show default grid
   updateActiveFiltersDisplay();
   renderGrid();
   
-  console.log('✓ Filters cleared');
+  console.log('✓ Filters cleared - showing empty grid');
 }
 
 // Update active filters display
@@ -739,13 +739,10 @@ async function loadData() {
       };
     });
 
-    // Initialize filtered data with all data
-    filteredData = allSheetData;
-    
-    // Populate filter dropdowns
+    // Populate filter dropdowns with all data
     populateFilters();
     
-    // Render grid
+    // Render empty grid initially (filteredData is empty)
     renderGrid();
     
     console.log('✓ Data loaded successfully:', allSheetData.length, 'items');
@@ -771,18 +768,38 @@ async function refreshData() {
   }
 }
 
+// Check if any filter is active
+function hasActiveFilters() {
+  return currentFilters.warehouse || currentFilters.storage || currentFilters.zona;
+}
+
 // Render warehouse grid
 function renderGrid() {
   const warehouse = document.getElementById("warehouse");
   warehouse.innerHTML = "";
   
-  // Check if there's filtered data
-  if (filteredData.length === 0) {
+  const isFiltered = hasActiveFilters();
+  
+  // Default racks A-N for empty grid
+  const defaultRacks = "ABCDEFGHIJKLMN".split("");
+  let displayRacks = defaultRacks;
+  
+  // If filter is applied and has data, get unique racks from filtered data
+  if (isFiltered && filteredData.length > 0) {
+    const availableRacks = [...new Set(filteredData.map(item => {
+      const rackLabel = item.racking.replace("Racking ", "").trim();
+      return rackLabel;
+    }))].sort();
+    
+    displayRacks = [...availableRacks];
+    while (displayRacks.length < 14) {
+      displayRacks.push('');
+    }
+  } else if (isFiltered && filteredData.length === 0) {
+    // Filter applied but no data found
     warehouse.innerHTML = '<div class="no-data-message">No data found matching the current filters.</div>';
     return;
   }
-
-  const racks = "ABCDEFGHIJKL".split("");
   
   const floors = [
     { title: "Floor 3", rows: [1, 2, 3] },
@@ -802,10 +819,11 @@ function renderGrid() {
     // Racking headers
     const headerGrid = document.createElement("div");
     headerGrid.className = "racking-grid";
-    racks.forEach(rak => {
+    displayRacks.forEach(rak => {
       const headerDiv = document.createElement("div");
       headerDiv.className = "racking-header";
-      headerDiv.textContent = `Rack ${rak}`;
+      headerDiv.textContent = rak ? `Rack ${rak}` : '';
+      headerDiv.style.visibility = rak ? 'visible' : 'hidden';
       headerGrid.appendChild(headerDiv);
     });
     floorSection.appendChild(headerGrid);
@@ -815,24 +833,40 @@ function renderGrid() {
       const rowGrid = document.createElement("div");
       rowGrid.className = "racking-grid";
       
-      racks.forEach(rak => {
-        const kode = rak + rowNum;
-        // Use filtered data instead of all data
-        const slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
-
+      displayRacks.forEach(rak => {
         const div = document.createElement("div");
         div.className = "slot";
 
-        if (slotData && slotData.barang) {
-          div.textContent = slotData.barang;
-          if (slotData.status.includes("aman")) div.classList.add("status-aman");
-          if (slotData.status.includes("menipis")) div.classList.add("status-menipis");
-          if (slotData.status.includes("habis")) div.classList.add("status-habis");
-          div.title = `${kode} | ${slotData.barang} (Qty: ${slotData.qty})`;
-          div.onclick = () => showDetail(kode, slotData);
+        if (rak) {
+          const kode = rak + rowNum;
+          
+          // Find slot data only if filter is applied
+          let slotData = null;
+          if (isFiltered) {
+            slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
+          }
+
+          if (slotData && slotData.barang) {
+            div.textContent = slotData.barang;
+            
+            // Check status from column K (Status)
+            if (slotData.status && slotData.status.toLowerCase().trim() === "kosong") {
+              div.classList.add("status-kosong-sheet");
+            } else {
+              div.classList.add("status-terisi");
+            }
+            
+            div.title = `${kode} | ${slotData.barang} (Qty: ${slotData.qty})`;
+            div.onclick = () => showDetail(kode, slotData);
+          } else {
+            div.textContent = kode;
+            div.classList.add("status-kosong");
+            div.onclick = () => showDetail(kode, null);
+          }
         } else {
-          div.textContent = kode;
-          div.onclick = () => showDetail(kode, null);
+          // Empty column when filtered
+          div.style.visibility = 'hidden';
+          div.classList.add("status-kosong");
         }
 
         rowGrid.appendChild(div);
@@ -849,9 +883,14 @@ function renderGrid() {
 function showDetail(kode, data) {
   const info = document.getElementById("info");
   if (data) {
-    const statusIcon = data.status.includes("aman") ? "✓" : 
-                      data.status.includes("menipis") ? "⚠" : 
-                      data.status.includes("habis") ? "✗" : "■";
+    let statusIcon = "✓";
+    let statusText = "TERISI";
+    
+    // Check if status from sheet is "KOSONG"
+    if (data.status && data.status.toLowerCase().trim() === "kosong") {
+      statusText = "KOSONG (SHEET)";
+      statusIcon = "⚠";
+    }
     
     info.innerHTML = `
       <p><strong>Slot:</strong> ${kode}</p>
@@ -864,13 +903,12 @@ function showDetail(kode, data) {
       <p><strong>Item:</strong> ${data.barang}</p>
       <p><strong>Quantity:</strong> ${data.qty}</p>
       <p><strong>Expired:</strong> ${data.expired}</p>
-      <p><strong>Status:</strong> ${statusIcon} ${data.status.toUpperCase()}</p>
+      <p><strong>Status:</strong> ${statusIcon} ${statusText}</p>
     `;
   } else {
     info.innerHTML = `
       <p><strong>Slot:</strong> ${kode}</p>
-      <p><strong>Status:</strong> EMPTY</p>
-      <p style="color: #a0aec0; font-style: italic;">This slot is available for new items</p>
+      <p><strong>Status:</strong> ✗ KOSONG</p>
     `;
   }
 }
