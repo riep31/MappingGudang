@@ -20,7 +20,7 @@
     }
     
     .header {
-      background: #1a1a2e;
+      background: linear-gradient(90deg, #fcfcfc 8%, #6f7aa8 51%, #181b29 100%);
       border-bottom: 1px solid #2d3748;
       padding: 20px;
       display: flex;
@@ -31,8 +31,21 @@
       width: 100%;
     }
     
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .logo { 
+      width: 110px; 
+      height: 60px; 
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    
     .header h1 {
-      color: #f7fafc;
+      color: #0d0d15;
       font-size: 1.6rem;
       font-weight: 800;
       letter-spacing: -0.025em;
@@ -90,7 +103,7 @@
       animation: spin 1s linear infinite;
     }
     
-    .download-pdf-btn {
+    .print-btn {
       background: #38a169;
       color: white;
       border: none;
@@ -106,12 +119,12 @@
       border: 1px solid #48bb78;
     }
     
-    .download-pdf-btn:hover {
+    .print-btn:hover {
       background: #48bb78;
       transform: translateY(-1px);
     }
     
-    .download-pdf-btn.loading .download-icon {
+    .print-btn.loading .print-icon {
       animation: pulse 1s ease-in-out infinite;
     }
     
@@ -127,9 +140,10 @@
     
     .filters-container {
       background: #1a1a2e;
-      border-bottom: 1px solid #2d3748;
+      border: 1px solid #2d3748;
+      margin: 8px 15px 0 15px;
       padding: 10px;
-      width: 100%;
+      width: auto;
     }
     
     .filters-grid {
@@ -217,7 +231,6 @@
       margin-top: 16px;
       padding: 10px;
       background: #2d3748;
-      border-radius: 10px;
       border: 1px solid #4a5568;
       display: none;
     }
@@ -246,6 +259,26 @@
       border-radius: 16px;
       font-size: 0.75rem;
       font-weight: 500;
+    }
+    
+    /* Layout order info display */
+    .layout-info {
+      background: linear-gradient(90deg, #cf77d9 0%, #442c5c 100%);
+      border: 1px solid #4a5568;
+      padding: 12px;
+      margin-top: 5px;
+      color: #e2e8f0;
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+    
+    .layout-info.show {
+      display: block;
+    }
+    
+    .layout-info strong {
+      color: #63b3ed;
     }
     
     .main-content {
@@ -296,26 +329,37 @@
       padding: 6px;
     }
     
+    /* Base racking grid - will be modified by JavaScript classes */
     .racking-grid {
       display: grid;
-      grid-template-columns: repeat(16, 110px);
       gap: 8px;
       margin-bottom: 8px;
       width: max-content;
-      min-width: 1880px;
       justify-self: center;
+      justify-content: center;
+      margin-left: auto;
+      margin-right: auto;
     }
+    
+    /* Dynamic grid column classes */
+    .racking-grid.cols-16 { grid-template-columns: repeat(16, 105px); }
+    .racking-grid.cols-15 { grid-template-columns: repeat(15, 105px); }
+    .racking-grid.cols-14 { grid-template-columns: repeat(14, 105px); }
+    .racking-grid.cols-13 { grid-template-columns: repeat(13, 105px); }
+    .racking-grid.cols-12 { grid-template-columns: repeat(12, 105px); }
+    .racking-grid.cols-11 { grid-template-columns: repeat(11, 105px); }
+    .racking-grid.cols-10 { grid-template-columns: repeat(10, 105px); }
     
     .racking-header {
       background: #48deea;
       color: #000;
-      padding: 4px 2px;
+      padding: 5px 3px;
       text-align: center;
       font-size: 0.8rem;
       font-weight: 700;
       border: 1px solid #4a5568;
-      height: 30px;
-      width: 110px;
+      height: 32px;
+      width: 105px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -329,7 +373,7 @@
       background: #2d3748;
       border: 1px solid #4a5568;
       color: #a0aec0;
-      padding: 4px 2px;
+      padding: 5px 3px;
       text-align: center;
       font-size: 0.75rem;
       font-weight: 500;
@@ -337,7 +381,7 @@
       cursor: pointer;
       transition: all 0.2s ease;
       height: 60px;
-      width: 110px;
+      width: 105px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -361,9 +405,9 @@
     }
     
     .status-kosong { 
-      background: #2d3748;
+      background: #1d1d34;
       border-color: #4a5568;
-      color: #fff;
+      color: #1d1d34;
     }
     
     .status-kosong-sheet { 
@@ -434,228 +478,109 @@
     }
     
     .legend-terisi { background: #404f66; }
-    .legend-kosong { background: #2d3748; }
+    .legend-kosong { background: #1d1d34; }
     .legend-kosong-sheet { background: #742a2a; }
     
     /* RESPONSIVE DESIGN */
     @media (max-width: 1200px) {
-      .main-content {
-        padding: 20px 12px;
-      }
+      .racking-grid.cols-16 { grid-template-columns: repeat(16, 55px); gap: 5px; }
+      .racking-grid.cols-15 { grid-template-columns: repeat(15, 55px); gap: 5px; }
+      .racking-grid.cols-14 { grid-template-columns: repeat(14, 55px); gap: 5px; }
+      .racking-grid.cols-13 { grid-template-columns: repeat(13, 55px); gap: 5px; }
+      .racking-grid.cols-12 { grid-template-columns: repeat(12, 55px); gap: 5px; }
+      .racking-grid.cols-11 { grid-template-columns: repeat(11, 55px); gap: 5px; }
+      .racking-grid.cols-10 { grid-template-columns: repeat(10, 55px); gap: 5px; }
       
-      .warehouse-container {
-        padding: 16px;
-      }
-      
-      .racking-grid {
-        grid-template-columns: repeat(16, 55px);
-        min-width: 900px;
-        gap: 5px;
-      }
-      
-      .slot {
-        height: 45px;
-        width: 55px;
-        font-size: 0.6rem;
-        padding: 2px 1px;
-      }
-      
-      .racking-header {
-        height: 28px;
-        width: 55px;
-        font-size: 0.65rem;
-        padding: 3px 1px;
-      }
+      .slot { height: 45px; width: 55px; font-size: 0.6rem; padding: 2px 1px; }
+      .racking-header { height: 28px; width: 55px; font-size: 0.65rem; padding: 3px 1px; }
     }
     
     @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        text-align: center;
-        padding: 16px;
-      }
+      .header { flex-direction: column; text-align: center; padding: 16px; }
+      .header-left { flex-direction: column; gap: 12px; text-align: center; }
+      .header h1 { font-size: 1.4rem; }
+      .logo { width: 90px; height: 32px; }
+      .header-controls { gap: 12px; flex-wrap: wrap; }
+      .refresh-btn, .print-btn { min-width: 120px; justify-content: center; }
+      .datetime-display { min-width: 160px; padding: 8px 12px; font-size: 0.8rem; }
+      .filters-grid { grid-template-columns: 1fr; gap: 12px; }
+      .filter-actions { justify-content: center; }
+      .main-content { padding: 16px 10px; }
+      .warehouse-container { padding: 12px; border-radius: 8px; }
       
-      .header h1 {
-        font-size: 1.4rem;
-      }
+      .racking-grid.cols-16 { grid-template-columns: repeat(16, 50px); gap: 4px; }
+      .racking-grid.cols-15 { grid-template-columns: repeat(15, 50px); gap: 4px; }
+      .racking-grid.cols-14 { grid-template-columns: repeat(14, 50px); gap: 4px; }
+      .racking-grid.cols-13 { grid-template-columns: repeat(13, 50px); gap: 4px; }
+      .racking-grid.cols-12 { grid-template-columns: repeat(12, 50px); gap: 4px; }
+      .racking-grid.cols-11 { grid-template-columns: repeat(11, 50px); gap: 4px; }
+      .racking-grid.cols-10 { grid-template-columns: repeat(10, 50px); gap: 4px; }
       
-      .header-controls {
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-      
-      .refresh-btn, .download-pdf-btn {
-        min-width: 120px;
-        justify-content: center;
-      }
-      
-      .datetime-display {
-        min-width: 160px;
-        padding: 8px 12px;
-        font-size: 0.8rem;
-      }
-      
-      .filters-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      
-      .filter-actions {
-        justify-content: center;
-      }
-      
-      .main-content {
-        padding: 16px 10px;
-      }
-      
-      .warehouse-container {
-        padding: 12px;
-        border-radius: 8px;
-      }
-      
-      .racking-grid {
-        grid-template-columns: repeat(16, 50px);
-        min-width: 820px;
-        gap: 4px;
-      }
-      
-      .slot {
-        height: 42px;
-        width: 50px;
-        font-size: 0.55rem;
-        padding: 1px;
-        border-radius: 3px;
-      }
-      
-      .racking-header {
-        height: 26px;
-        width: 50px;
-        font-size: 0.6rem;
-        padding: 2px 1px;
-        border-radius: 3px;
-      }
-      
-      .floor-title {
-        font-size: 0.9rem;
-        margin-bottom: 10px;
-      }
-      
-      .status-legend {
-        gap: 12px;
-        margin-top: 16px;
-      }
-      
-      .legend-item {
-        font-size: 0.75rem;
-        padding: 5px 8px;
-      }
+      .slot { height: 42px; width: 50px; font-size: 0.55rem; padding: 1px; border-radius: 3px; }
+      .racking-header { height: 26px; width: 50px; font-size: 0.6rem; padding: 2px 1px; border-radius: 3px; }
+      .floor-title { font-size: 0.9rem; margin-bottom: 10px; }
+      .status-legend { gap: 12px; margin-top: 16px; }
+      .legend-item { font-size: 0.75rem; padding: 5px 8px; }
     }
     
-    @media (max-width: 480px) {
-      .header {
-        padding: 12px;
-      }
+    @media (min-width: 1600px) {
+      .main-content { padding: 24px 40px; max-width: 1920px; margin: 0 auto; }
+      .warehouse-container { padding: 30px; max-width: 1880px; margin: 0 auto; }
       
-      .header h1 {
-        font-size: 1.2rem;
-      }
+      .racking-grid.cols-16 { grid-template-columns: repeat(16, 105px); gap: 10px; }
+      .racking-grid.cols-15 { grid-template-columns: repeat(15, 105px); gap: 10px; }
+      .racking-grid.cols-14 { grid-template-columns: repeat(14, 105px); gap: 10px; }
+      .racking-grid.cols-13 { grid-template-columns: repeat(13, 105px); gap: 10px; }
+      .racking-grid.cols-12 { grid-template-columns: repeat(12, 105px); gap: 10px; }
+      .racking-grid.cols-11 { grid-template-columns: repeat(11, 105px); gap: 10px; }
+      .racking-grid.cols-10 { grid-template-columns: repeat(10, 105px); gap: 10px; }
       
-      .main-content {
-        padding: 12px 8px;
-      }
-      
-      .warehouse-container {
-        padding: 10px;
-      }
-      
-      .racking-grid {
-        grid-template-columns: repeat(16, 45px);
-        min-width: 740px;
-        gap: 3px;
-      }
-      
-      .slot {
-        height: 38px;
-        width: 45px;
-        font-size: 0.5rem;
-        padding: 1px;
-      }
-      
-      .racking-header {
-        height: 24px;
-        width: 45px;
-        font-size: 0.55rem;
-        padding: 1px;
-      }
-      
-      .datetime-display {
-        min-width: 140px;
-        font-size: 0.75rem;
-      }
-      
-      .status-legend {
-        gap: 8px;
-      }
-      
-      .legend-item {
-        font-size: 0.7rem;
-        padding: 4px 6px;
-      }
-    }
-    
-    @media (max-width: 360px) {
-      .racking-grid {
-        grid-template-columns: repeat(16, 42px);
-        min-width: 690px;
-        gap: 2px;
-      }
-      
-      .slot {
-        height: 35px;
-        width: 42px;
-        font-size: 0.45rem;
-      }
-      
-      .racking-header {
-        height: 22px;
-        width: 42px;
-        font-size: 0.5rem;
-      }
+      .slot { height: 65px; width: 105px; font-size: 0.8rem; padding: 6px 4px; line-height: 1.3; }
+      .racking-header { height: 35px; width: 105px; font-size: 0.85rem; padding: 6px 4px; }
+      .floor-title { font-size: 1.1rem; margin-bottom: 16px; }
     }
 
-    /* Desktop centering */
-    @media (min-width: 1201px) {
-      .warehouse-container {
-        justify-content: center;
-      }
-      
-      .floor-section {
-        justify-content: center;
-      }
-      
-      .racking-grid {
-        margin-left: auto;
-        margin-right: auto;
-      }
+    /* PRINT STYLES */
+    @media print {
+      body { background: white !important; color: black !important; }
+      .header, .filters-container { display: none !important; }
+      .main-content { padding: 10px !important; }
+      .warehouse-container { background: white !important; border: 1px solid #000 !important; border-radius: 0 !important; }
+      .floor-title { color: black !important; font-weight: bold !important; }
+      .racking-header { background: #e0e0e0 !important; color: black !important; border: 1px solid #000 !important; }
+      .slot { border: 1px solid #000 !important; }
+      .status-kosong { background: white !important; color: black !important; }
+      .status-terisi { background: #d0d0d0 !important; color: black !important; }
+      .status-kosong-sheet { background: #ff4444 !important; color: white !important; font-weight: bold !important; }
+      .legend-item { background: white !important; color: black !important; border: 1px solid #000 !important; }
+      .legend-terisi { background: #d0d0d0 !important; }
+      .legend-kosong { background: white !important; border: 2px solid #000 !important; }
+      .legend-kosong-sheet { background: #ff4444 !important; }
+      .detail-panel { display: none !important; }
+      .layout-info { color: black !important; background: #f0f0f0 !important; border: 1px solid #000 !important; }
     }
   </style>
 </head>
 <body>
 
 <header class="header">
-  <h1>Warehouse Mapping System</h1>
+  <div class="header-left">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYyanHkNjy-MEGWx-yRWA8XiFF9HbWiLoGFY9HRkEpuBXKYGjxU_TMW2dK4ONcqKA4tg&usqp=CAU" alt="Company Logo" class="logo">
+    <h1>Warehouse Mapping System</h1>
+  </div>
+  
   <div class="header-controls">
     <div class="datetime-display">
       <div class="date" id="current-date"></div>
       <div class="time" id="current-time"></div>
     </div>
     <button class="refresh-btn" onclick="refreshData()">
-      <span class="refresh-icon">↻</span>
+      <span class="refresh-icon">🔄</span>
       Refresh
     </button>
-    <button class="download-pdf-btn" onclick="downloadPDF()">
-      <span class="download-icon">⬇</span>
-      Download PDF
+    <button class="print-btn" onclick="printPage()">
+      <span class="print-icon">🖨️</span>
+      Print
     </button>
   </div>
 </header>
@@ -693,6 +618,10 @@
     <h4>Active Filters:</h4>
     <div class="filter-tags" id="filter-tags"></div>
   </div>
+  
+  <div class="layout-info" id="layout-info">
+    <strong>Layout Information:</strong> <span id="layout-text"></span>
+  </div>
 </div>
 
 <div class="main-content">
@@ -706,7 +635,7 @@
       </div>
       <div class="legend-item">
         <div class="legend-color legend-kosong"></div>
-        <span>Racking Belum Ada Data</span>
+        <span>tidak ada Racking</span>
       </div>
       <div class="legend-item">
         <div class="legend-color legend-kosong-sheet"></div>
@@ -738,9 +667,6 @@ let currentFilters = {
   storage: '',
   zona: ''
 };
-
-// All possible racks A-Z for maximum flexibility
-const ALL_RACKS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 // Update date and time
 function updateDateTime() {
@@ -821,16 +747,17 @@ function populateFilters() {
     zonaSelect.appendChild(option);
   });
   
-  console.log('✓ Filters populated:', {
+  console.log('🔧 Filters populated:', {
     warehouses: warehouses.length,
     storages: storages.length, 
     zonas: zonas.length
   });
 }
 
-// Get display racks for 16 columns - always show 16 columns
+// Get display racks - MODIFIED FOR DYNAMIC COLUMN COUNT AND CENTERING
 function getDisplayRacks() {
-  const displayRacks = [];
+  // Check if Zone B is selected
+  const isZoneB = currentFilters.zona === 'B';
   
   if (!hasActiveFilters()) {
     // No filters applied, show default A-P (16 columns)
@@ -838,26 +765,63 @@ function getDisplayRacks() {
   }
   
   if (filteredData.length === 0) {
-    // Filter applied but no data, show 16 empty columns
-    return new Array(16).fill('');
+    // Filter applied but no data, return empty array
+    return [];
   }
   
   // Get unique racks from filtered data and sort them
-  const availableRacks = [...new Set(filteredData.map(item => {
+  let availableRacks = [...new Set(filteredData.map(item => {
     const rackLabel = item.racking.replace("Racking ", "").trim();
     return rackLabel;
   }))].sort();
   
-  // Always return exactly 16 slots, fill with available racks first, then empty
-  for (let i = 0; i < 16; i++) {
-    if (i < availableRacks.length) {
-      displayRacks.push(availableRacks[i]);
-    } else {
-      displayRacks.push('');
+  // If Zone B is selected, reverse the order and create the specific sequence
+  if (isZoneB) {
+    // Create the sequence: Z, Y, X, W, V, U, T, S, R, Q, P, O, N2, N1, etc.
+    const reverseSequence = [];
+    
+    // Add Z to N (reverse alphabetical)
+    for (let i = 25; i >= 13; i--) { // Z=25, N=13 in 0-based index
+      const letter = String.fromCharCode(65 + i); // Convert to letter
+      if (availableRacks.includes(letter)) {
+        reverseSequence.push(letter);
+      }
     }
+    
+    // Add N2, N1 if they exist
+    if (availableRacks.includes('N2')) {
+      reverseSequence.push('N2');
+    }
+    if (availableRacks.includes('N1')) {
+      reverseSequence.push('N1');
+    }
+    
+    // Add any other racks that might exist
+    const remainingRacks = availableRacks.filter(rack => 
+      !reverseSequence.includes(rack) && 
+      !['N1', 'N2'].includes(rack) &&
+      !/^[N-Z]$/.test(rack)
+    ).sort();
+    
+    availableRacks = [...reverseSequence, ...remainingRacks];
   }
   
-  return displayRacks;
+  // Return exactly the available racks (dynamic column count)
+  return availableRacks;
+}
+
+// Update layout information display
+function updateLayoutInfo() {
+  const layoutInfo = document.getElementById('layout-info');
+  const layoutText = document.getElementById('layout-text');
+  
+  if (currentFilters.zona === 'B') {
+    layoutInfo.classList.add('show');
+    layoutText.innerHTML = '<strong>Urutan:</strong> Z → Y → X → W → V → U → T → S → R → Q → P → O → N2 → N1<br>' +
+                          '<strong>Layout:</strong> Z1-Z9 di kolom paling kanan, Y1-Y9 di sebelah kiri Z, dan seterusnya sampai N1 di kolom paling kiri';
+  } else {
+    layoutInfo.classList.remove('show');
+  }
 }
 
 // Apply filters
@@ -885,13 +849,17 @@ function applyFilters() {
   // Update active filters display
   updateActiveFiltersDisplay();
   
+  // Update layout information
+  updateLayoutInfo();
+  
   // Re-render grid with filtered data
   renderGrid();
   
-  console.log('✓ Filters applied:', {
+  console.log('🔍 Filters applied:', {
     total: allSheetData.length,
     filtered: filteredData.length,
-    filters: currentFilters
+    filters: currentFilters,
+    isZoneB: currentFilters.zona === 'B'
   });
 }
 
@@ -909,9 +877,10 @@ function clearFilters() {
   
   filteredData = []; // Reset to empty to show default grid
   updateActiveFiltersDisplay();
+  updateLayoutInfo();
   renderGrid();
   
-  console.log('✓ Filters cleared - showing default A-P grid');
+  console.log('🔄 Filters cleared - showing default A-P grid');
 }
 
 // Update active filters display
@@ -944,10 +913,15 @@ function updateActiveFiltersDisplay() {
 // Load data from Google Sheets API
 async function loadData() {
   try {
+    console.log('📡 Loading data from Google Sheets...');
     const res = await fetch(url);
     const json = await res.json();
 
     const rows = json.values;
+    if (!rows || rows.length < 2) {
+      throw new Error('No data found in sheet');
+    }
+    
     const headers = rows[0];
     const dataRows = rows.slice(1);
 
@@ -955,16 +929,16 @@ async function loadData() {
       const rowObj = {};
       headers.forEach((h, i) => rowObj[h] = r[i] || "");
       return {
-        warehouse: rowObj["Warehouse Location"],
-        storage: rowObj["Storage Option"],
-        zona: rowObj["Zona"],
-        rackingCode: rowObj["Racking Code"],
-        racking: rowObj["Racking"],
-        floor: Number(rowObj["Floor"]),
-        raws: rowObj["Raws"],
+        warehouse: rowObj["Warehouse Location"] || "",
+        storage: rowObj["Storage Option"] || "",
+        zona: rowObj["Zona"] || "",
+        rackingCode: rowObj["Racking Code"] || "",
+        racking: rowObj["Racking"] || "",
+        floor: Number(rowObj["Floor"]) || 0,
+        raws: rowObj["Raws"] || "",
         barang: (rowObj["Item Description"] || "").split("-").slice(0,2).join("-").trim(),
-        qty: rowObj["Qty"],
-        expired: rowObj["Expired Date"],
+        qty: rowObj["Qty"] || "",
+        expired: rowObj["Expired Date"] || "",
         status: (rowObj["Status"] || "").toLowerCase()
       };
     });
@@ -975,9 +949,9 @@ async function loadData() {
     // Render default grid initially (filteredData is empty, will show A-P)
     renderGrid();
     
-    console.log('✓ Data loaded successfully:', allSheetData.length, 'items');
+    console.log('📊 Data loaded successfully:', allSheetData.length, 'items');
   } catch (error) {
-    console.error('✗ Error loading data:', error);
+    console.error('❌ Error loading data:', error);
     document.getElementById('info').innerHTML = 
       '<p style="color: #e53e3e;">Failed to load data. Please check connection and try again.</p>';
   }
@@ -1003,19 +977,24 @@ function hasActiveFilters() {
   return currentFilters.warehouse || currentFilters.storage || currentFilters.zona;
 }
 
-// Render warehouse grid - ALWAYS 16 columns
+// Render warehouse grid - DYNAMIC COLUMN COUNT WITH CENTERING
 function renderGrid() {
   const warehouse = document.getElementById("warehouse");
   warehouse.innerHTML = "";
   
   const isFiltered = hasActiveFilters();
   const displayRacks = getDisplayRacks();
+  const isZoneB = currentFilters.zona === 'B';
   
   // If filter is applied but no data found
-  if (isFiltered && filteredData.length === 0) {
+  if (isFiltered && displayRacks.length === 0) {
     warehouse.innerHTML = '<div class="no-data-message">No data found matching the current filters.</div>';
     return;
   }
+  
+  // Determine actual column count and CSS class
+  const actualColumns = displayRacks.length;
+  const gridClass = `cols-${Math.max(10, Math.min(16, actualColumns))}`; // Limit between 10-16
   
   const floors = [
     { title: "Floor 3", rows: [1, 2, 3] },
@@ -1032,63 +1011,51 @@ function renderGrid() {
     floorTitle.textContent = floor.title;
     floorSection.appendChild(floorTitle);
     
-    // Racking headers - always 16 columns
+    // Racking headers - dynamic column count
     const headerGrid = document.createElement("div");
-    headerGrid.className = "racking-grid";
+    headerGrid.className = `racking-grid ${gridClass}`;
     
     displayRacks.forEach(rak => {
       const headerDiv = document.createElement("div");
       headerDiv.className = "racking-header";
-      if (rak) {
-        headerDiv.textContent = `Rack ${rak}`;
-        headerDiv.style.visibility = 'visible';
-      } else {
-        headerDiv.textContent = '';
-        headerDiv.style.visibility = 'hidden';
-      }
+      headerDiv.textContent = `Rack ${rak}`;
       headerGrid.appendChild(headerDiv);
     });
     floorSection.appendChild(headerGrid);
 
-    // Render slot rows for this floor - always 16 columns
+    // Render slot rows for this floor - dynamic column count
     floor.rows.forEach(rowNum => {
       const rowGrid = document.createElement("div");
-      rowGrid.className = "racking-grid";
+      rowGrid.className = `racking-grid ${gridClass}`;
       
       displayRacks.forEach(rak => {
         const div = document.createElement("div");
         div.className = "slot";
+        
+        const kode = rak + rowNum;
+        
+        // Find slot data if filter is applied
+        let slotData = null;
+        if (isFiltered) {
+          slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
+        }
 
-        if (rak) {
-          const kode = rak + rowNum;
+        if (slotData && slotData.barang) {
+          div.textContent = slotData.barang;
           
-          // Find slot data if filter is applied
-          let slotData = null;
-          if (isFiltered) {
-            slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
-          }
-
-          if (slotData && slotData.barang) {
-            div.textContent = slotData.barang;
-            
-            // Check status from column K (Status)
-            if (slotData.status && slotData.status.toLowerCase().trim() === "kosong") {
-              div.classList.add("status-kosong-sheet");
-            } else {
-              div.classList.add("status-terisi");
-            }
-            
-            div.title = `${kode} | ${slotData.barang} (Qty: ${slotData.qty})`;
-            div.onclick = () => showDetail(kode, slotData);
+          // Check status from column K (Status)
+          if (slotData.status && slotData.status.toLowerCase().trim() === "kosong") {
+            div.classList.add("status-kosong-sheet");
           } else {
-            div.textContent = kode;
-            div.classList.add("status-kosong");
-            div.onclick = () => showDetail(kode, null);
+            div.classList.add("status-terisi");
           }
+          
+          div.title = `${kode} | ${slotData.barang} (Qty: ${slotData.qty})`;
+          div.onclick = () => showDetail(kode, slotData);
         } else {
-          // Empty column - hide but maintain grid structure
-          div.style.visibility = 'hidden';
+          div.textContent = kode;
           div.classList.add("status-kosong");
+          div.onclick = () => showDetail(kode, null);
         }
 
         rowGrid.appendChild(div);
@@ -1100,21 +1067,20 @@ function renderGrid() {
     warehouse.appendChild(floorSection);
   });
   
-  const visibleRacks = displayRacks.filter(rack => rack !== '');
-  console.log(`✓ Grid rendered with 16 columns, showing racks:`, visibleRacks.join(', '));
+  console.log(`📋 Grid rendered with ${actualColumns} columns (${gridClass})${isZoneB ? ' [Zone B - Reverse Order]' : ''} - CENTERED:`, displayRacks.join(', '));
 }
 
 // Show slot details
 function showDetail(kode, data) {
   const info = document.getElementById("info");
   if (data) {
-    let statusIcon = "✓";
+    let statusIcon = "✅";
     let statusText = "TERISI";
     
     // Check if status from sheet is "KOSONG"
     if (data.status && data.status.toLowerCase().trim() === "kosong") {
       statusText = "KOSONG (SHEET)";
-      statusIcon = "⚠";
+      statusIcon = "🔴";
     }
     
     info.innerHTML = `
@@ -1133,207 +1099,36 @@ function showDetail(kode, data) {
   } else {
     info.innerHTML = `
       <p><strong>Slot:</strong> ${kode}</p>
-      <p><strong>Status:</strong> ✗ KOSONG</p>
+      <p><strong>Status:</strong> ⚪ KOSONG</p>
     `;
   }
 }
 
-// Download PDF function
-async function downloadPDF() {
-  const btn = document.querySelector('.download-pdf-btn');
+// Print function
+function printPage() {
+  const btn = document.querySelector('.print-btn');
   btn.classList.add('loading');
   
   try {
-    // Import jsPDF library dynamically
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-    document.head.appendChild(script);
-    
-    await new Promise((resolve) => {
-      script.onload = resolve;
-    });
-    
-    const { jsPDF } = window.jspdf;
-    
-    // Create new PDF document in landscape mode
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    // Get current date for filename
+    // Add print title to document
+    const originalTitle = document.title;
     const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
+    const dateStr = now.toLocaleDateString('id-ID');
+    const timeStr = now.toLocaleTimeString('id-ID');
     
-    // Add title
-    pdf.setFontSize(16);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Warehouse Mapping Layout', 20, 20);
+    document.title = `Warehouse Mapping - ${dateStr} ${timeStr}`;
     
-    // Add date
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(`Generated: ${now.toLocaleString('id-ID')}`, 20, 30);
+    // Trigger browser print dialog
+    window.print();
     
-    // Add active filters if any
-    let yPos = 40;
-    if (hasActiveFilters()) {
-      pdf.setFontSize(8);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('Active Filters:', 20, yPos);
-      yPos += 5;
-      
-      pdf.setFont(undefined, 'normal');
-      if (currentFilters.warehouse) {
-        pdf.text(`• Warehouse: ${currentFilters.warehouse}`, 25, yPos);
-        yPos += 5;
-      }
-      if (currentFilters.storage) {
-        pdf.text(`• Storage: ${currentFilters.storage}`, 25, yPos);
-        yPos += 5;
-      }
-      if (currentFilters.zona) {
-        pdf.text(`• Zone: ${currentFilters.zona}`, 25, yPos);
-        yPos += 5;
-      }
-      yPos += 5;
-    }
+    // Restore original title
+    document.title = originalTitle;
     
-    // Get display racks
-    const displayRacks = getDisplayRacks();
-    const visibleRacks = displayRacks.filter(rack => rack !== '');
-    
-    if (visibleRacks.length === 0) {
-      pdf.setFontSize(12);
-      pdf.text('No data available for the current filters.', 20, yPos + 20);
-    } else {
-      // Grid settings
-      const cellWidth = 15;
-      const cellHeight = 8;
-      const startX = 20;
-      const startY = yPos + 10;
-      
-      // Floor data
-      const floors = [
-        { title: "Floor 3", rows: [1, 2, 3] },
-        { title: "Floor 2", rows: [4, 5, 6] },
-        { title: "Floor 1", rows: [7, 8, 9] }
-      ];
-      
-      let currentY = startY;
-      
-      floors.forEach((floor, floorIndex) => {
-        // Floor title
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'bold');
-        pdf.text(floor.title, startX, currentY);
-        currentY += 8;
-        
-        // Column headers
-        pdf.setFontSize(7);
-        visibleRacks.forEach((rack, index) => {
-          if (rack) {
-            const x = startX + (index * cellWidth);
-            pdf.setFillColor(72, 222, 234); // Light blue
-            pdf.rect(x, currentY, cellWidth, cellHeight, 'F');
-            pdf.setTextColor(0, 0, 0);
-            pdf.text(`Rack ${rack}`, x + 1, currentY + 5);
-          }
-        });
-        currentY += cellHeight + 2;
-        
-        // Grid rows
-        floor.rows.forEach(rowNum => {
-          visibleRacks.forEach((rack, index) => {
-            if (rack) {
-              const x = startX + (index * cellWidth);
-              const kode = rack + rowNum;
-              
-              // Find slot data
-              let slotData = null;
-              let cellColor = [45, 55, 72]; // Default gray
-              let textColor = [255, 255, 255]; // White text
-              
-              if (hasActiveFilters()) {
-                slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
-              }
-              
-              if (slotData && slotData.barang) {
-                if (slotData.status && slotData.status.toLowerCase().trim() === "kosong") {
-                  cellColor = [210, 62, 57]; // Red for empty sheet
-                  textColor = [0, 0, 0]; // Black text
-                } else {
-                  cellColor = [64, 79, 102]; // Blue for filled
-                  textColor = [255, 255, 255]; // White text
-                }
-              }
-              
-              // Draw cell
-              pdf.setFillColor(cellColor[0], cellColor[1], cellColor[2]);
-              pdf.rect(x, currentY, cellWidth, cellHeight, 'F');
-              
-              // Add border
-              pdf.setDrawColor(74, 85, 104);
-              pdf.rect(x, currentY, cellWidth, cellHeight);
-              
-              // Add text
-              pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
-              pdf.setFontSize(6);
-              
-              if (slotData && slotData.barang) {
-                const itemText = slotData.barang.length > 12 ? 
-                  slotData.barang.substring(0, 12) + '...' : 
-                  slotData.barang;
-                pdf.text(itemText, x + 1, currentY + 3);
-                pdf.text(`Qty: ${slotData.qty}`, x + 1, currentY + 6);
-              } else {
-                pdf.text(kode, x + 1, currentY + 5);
-              }
-            }
-          });
-          currentY += cellHeight + 1;
-        });
-        
-        currentY += 10; // Space between floors
-      });
-      
-      // Add legend
-      currentY += 5;
-      pdf.setFontSize(8);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('Legend:', startX, currentY);
-      currentY += 8;
-      
-      pdf.setFont(undefined, 'normal');
-      // Filled legend
-      pdf.setFillColor(64, 79, 102);
-      pdf.rect(startX, currentY, 5, 4, 'F');
-      pdf.setTextColor(0, 0, 0);
-      pdf.text('Racking Terisi', startX + 8, currentY + 3);
-      
-      // Empty legend
-      pdf.setFillColor(45, 55, 72);
-      pdf.rect(startX + 50, currentY, 5, 4, 'F');
-      pdf.text('Racking Belum Ada Data', startX + 58, currentY + 3);
-      
-      // Empty sheet legend
-      pdf.setFillColor(210, 62, 57);
-      pdf.rect(startX + 120, currentY, 5, 4, 'F');
-      pdf.text('Racking Kosong', startX + 128, currentY + 3);
-    }
-    
-    // Generate filename
-    const filename = `warehouse-mapping-${dateStr}.pdf`;
-    
-    // Save the PDF
-    pdf.save(filename);
-    
-    console.log('✓ PDF generated successfully:', filename);
+    console.log('🖨️ Print dialog opened');
     
   } catch (error) {
-    console.error('✗ Error generating PDF:', error);
-    alert('Failed to generate PDF. Please try again.');
+    console.error('❌ Error opening print dialog:', error);
+    alert('Failed to open print dialog. Please try again.');
   } finally {
     setTimeout(() => {
       btn.classList.remove('loading');
@@ -1341,10 +1136,15 @@ async function downloadPDF() {
   }
 }
 
-// Initialize
+// Initialize application
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 Warehouse Mapping System initialized');
+  
+  // Start datetime updates
   updateDateTime();
   setInterval(updateDateTime, 1000);
+  
+  // Load initial data
   loadData();
 });
 </script>
