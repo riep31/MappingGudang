@@ -282,7 +282,7 @@
     }
     
     .main-content {
-      padding: 24px 16px;
+      padding: 18px 16px;
       width: 100%;
       max-width: 100vw;
       overflow-x: hidden;
@@ -291,8 +291,7 @@
     .warehouse-container {
       background: #1a1a2e;
       border: 1px solid #2d3748;
-      border-radius: 12px;
-      padding: 20px;
+      padding: 5px;
       width: 100%;
       overflow-x: auto;
       overflow-y: visible;
@@ -309,7 +308,7 @@
     }
     
     .floor-section {
-      margin-bottom: 32px;
+      margin-bottom: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -324,16 +323,16 @@
       color: #f7fafc;
       font-size: 1rem;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 5px;
       text-align: center;
-      padding: 6px;
+      padding: 2px;
     }
     
     /* Base racking grid - will be modified by JavaScript classes */
     .racking-grid {
       display: grid;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 5px;
+      margin-bottom: 5px;
       width: max-content;
       justify-self: center;
       justify-content: center;
@@ -453,8 +452,8 @@
     .status-legend {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
+      gap: 26px;
+      margin-top: 5px;
       flex-wrap: wrap;
     }
     
@@ -465,7 +464,6 @@
       padding: 6px 12px;
       background: #2d3748;
       border: 1px solid #4a5568;
-      border-radius: 8px;
       font-size: 0.8rem;
       color: #e2e8f0;
     }
@@ -473,7 +471,6 @@
     .legend-color {
       width: 14px;
       height: 14px;
-      border-radius: 3px;
       border: 1px solid #4a5568;
     }
     
@@ -544,11 +541,11 @@
     @media print {
       body { background: white !important; color: black !important; }
       .header, .filters-container { display: none !important; }
-      .main-content { padding: 10px !important; }
+      .main-content { padding: 5px !important; }
       .warehouse-container { background: white !important; border: 1px solid #000 !important; border-radius: 0 !important; }
       .floor-title { color: black !important; font-weight: bold !important; }
       .racking-header { background: #e0e0e0 !important; color: black !important; border: 1px solid #000 !important; }
-      .slot { border: 1px solid #000 !important; }
+     
       .status-kosong { background: white !important; color: black !important; }
       .status-terisi { background: #d0d0d0 !important; color: black !important; }
       .status-kosong-sheet { background: #ff4444 !important; color: white !important; font-weight: bold !important; }
@@ -558,6 +555,10 @@
       .legend-kosong-sheet { background: #ff4444 !important; }
       .detail-panel { display: none !important; }
       .layout-info { color: black !important; background: #f0f0f0 !important; border: 1px solid #000 !important; }
+    .slot {
+    border: 1px solid #000 !important;
+    font-size: 0.4rem !important;
+  }
     }
   </style>
 </head>
