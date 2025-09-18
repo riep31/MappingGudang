@@ -338,9 +338,11 @@
       justify-content: center;
       margin-left: auto;
       margin-right: auto;
+      /* MODIFIED: Direction reversed for right-to-left layout */
+      direction: rtl;
     }
     
-    /* Dynamic grid column classes */
+    /* Dynamic grid column classes - MODIFIED: direction for slots */
     .racking-grid.cols-16 { grid-template-columns: repeat(16, 105px); }
     .racking-grid.cols-15 { grid-template-columns: repeat(15, 105px); }
     .racking-grid.cols-14 { grid-template-columns: repeat(14, 105px); }
@@ -366,6 +368,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       border-radius: 4px;
+      /* MODIFIED: Reset direction for text display */
+      direction: ltr;
     }
     
     .slot {
@@ -389,6 +393,8 @@
       text-overflow: ellipsis;
       line-height: 1.2;
       hyphens: auto;
+      /* MODIFIED: Reset direction for text display */
+      direction: ltr;
     }
     
     .slot:hover {
@@ -492,34 +498,35 @@
       .racking-header { height: 28px; width: 55px; font-size: 0.65rem; padding: 3px 1px; }
     }
     
-    @media (max-width: 768px) {
-      .header { flex-direction: column; text-align: center; padding: 16px; }
-      .header-left { flex-direction: column; gap: 12px; text-align: center; }
-      .header h1 { font-size: 1.4rem; }
-      .logo { width: 90px; height: 32px; }
-      .header-controls { gap: 12px; flex-wrap: wrap; }
-      .refresh-btn, .print-btn { min-width: 120px; justify-content: center; }
-      .datetime-display { min-width: 160px; padding: 8px 12px; font-size: 0.8rem; }
-      .filters-grid { grid-template-columns: 1fr; gap: 12px; }
-      .filter-actions { justify-content: center; }
-      .main-content { padding: 16px 10px; }
-      .warehouse-container { padding: 12px; border-radius: 8px; }
-      
-      .racking-grid.cols-16 { grid-template-columns: repeat(16, 50px); gap: 4px; }
-      .racking-grid.cols-15 { grid-template-columns: repeat(15, 50px); gap: 4px; }
-      .racking-grid.cols-14 { grid-template-columns: repeat(14, 50px); gap: 4px; }
-      .racking-grid.cols-13 { grid-template-columns: repeat(13, 50px); gap: 4px; }
-      .racking-grid.cols-12 { grid-template-columns: repeat(12, 50px); gap: 4px; }
-      .racking-grid.cols-11 { grid-template-columns: repeat(11, 50px); gap: 4px; }
-      .racking-grid.cols-10 { grid-template-columns: repeat(10, 50px); gap: 4px; }
-      
-      .slot { height: 42px; width: 50px; font-size: 0.55rem; padding: 1px; border-radius: 3px; }
-      .racking-header { height: 26px; width: 50px; font-size: 0.6rem; padding: 2px 1px; border-radius: 3px; }
-      .floor-title { font-size: 0.9rem; margin-bottom: 10px; }
-      .status-legend { gap: 12px; margin-top: 16px; }
-      .legend-item { font-size: 0.75rem; padding: 5px 8px; }
-    }
-    
+   @media (max-width: 768px) {
+  .header { flex-direction: column; text-align: center; padding: 16px; }
+  .header-left { flex-direction: column; gap: 12px; text-align: center; }
+  .header h1 { font-size: 1.4rem; }
+  .logo { width: 90px; height: 32px; }
+  .header-controls { gap: 12px; flex-wrap: wrap; }
+  .refresh-btn, .print-btn { min-width: 120px; justify-content: center; }
+  .datetime-display { min-width: 160px; padding: 8px 12px; font-size: 0.8rem; }
+  .filters-grid { grid-template-columns: 1fr; gap: 12px; }
+  .filter-actions { justify-content: center; }
+  .main-content { padding: 16px 10px; }
+  .warehouse-container { padding: 12px; border-radius: 8px; }
+
+  /* Grid hitung pas 600px (lebar total = slot * n + gap * (n-1)) */
+  .racking-grid.cols-16 { grid-template-columns: repeat(16, 33px); gap: 4px; }
+  .racking-grid.cols-15 { grid-template-columns: repeat(15, 36px); gap: 4px; }
+  .racking-grid.cols-14 { grid-template-columns: repeat(14, 39px); gap: 4px; }
+  .racking-grid.cols-13 { grid-template-columns: repeat(13, 42px); gap: 4px; }
+  .racking-grid.cols-12 { grid-template-columns: repeat(12, 46px); gap: 4px; }
+  .racking-grid.cols-11 { grid-template-columns: repeat(11, 50px); gap: 4px; }
+  .racking-grid.cols-10 { grid-template-columns: repeat(10, 55px); gap: 4px; }
+
+  .slot { height: 42px; width: 100%; font-size: 0.45rem; padding: 1px; border-radius: 3px; }
+  .racking-header { height: 26px; width: 100%; font-size: 0.6rem; padding: 2px 1px; border-radius: 3px; }
+  .floor-title { font-size: 0.9rem; margin-bottom: 10px; }
+  .status-legend { gap: 12px; margin-top: 16px; }
+  .legend-item { font-size: 0.75rem; padding: 5px 8px; }
+}
+  
     @media (min-width: 1600px) {
       .main-content { padding: 24px 40px; max-width: 1920px; margin: 0 auto; }
       .warehouse-container { padding: 30px; max-width: 1880px; margin: 0 auto; }
@@ -755,11 +762,8 @@ function populateFilters() {
   });
 }
 
-// Get display racks - MODIFIED FOR DYNAMIC COLUMN COUNT AND CENTERING
+// MODIFIED: Get display racks in normal A-P order (no Zone B special handling)
 function getDisplayRacks() {
-  // Check if Zone B is selected
-  const isZoneB = currentFilters.zona === 'B';
-  
   if (!hasActiveFilters()) {
     // No filters applied, show default A-P (16 columns)
     return "ABCDEFGHIJKLMNOP".split("");
@@ -770,59 +774,21 @@ function getDisplayRacks() {
     return [];
   }
   
-  // Get unique racks from filtered data and sort them
+  // Get unique racks from filtered data and sort them normally
   let availableRacks = [...new Set(filteredData.map(item => {
     const rackLabel = item.racking.replace("Racking ", "").trim();
     return rackLabel;
   }))].sort();
   
-  // If Zone B is selected, reverse the order and create the specific sequence
-  if (isZoneB) {
-    // Create the sequence: Z, Y, X, W, V, U, T, S, R, Q, P, O, N2, N1, etc.
-    const reverseSequence = [];
-    
-    // Add Z to N (reverse alphabetical)
-    for (let i = 25; i >= 13; i--) { // Z=25, N=13 in 0-based index
-      const letter = String.fromCharCode(65 + i); // Convert to letter
-      if (availableRacks.includes(letter)) {
-        reverseSequence.push(letter);
-      }
-    }
-    
-    // Add N2, N1 if they exist
-    if (availableRacks.includes('N2')) {
-      reverseSequence.push('N2');
-    }
-    if (availableRacks.includes('N1')) {
-      reverseSequence.push('N1');
-    }
-    
-    // Add any other racks that might exist
-    const remainingRacks = availableRacks.filter(rack => 
-      !reverseSequence.includes(rack) && 
-      !['N1', 'N2'].includes(rack) &&
-      !/^[N-Z]$/.test(rack)
-    ).sort();
-    
-    availableRacks = [...reverseSequence, ...remainingRacks];
-  }
-  
-  // Return exactly the available racks (dynamic column count)
+  // Return exactly the available racks (dynamic column count) - normal order
   return availableRacks;
 }
 
-// Update layout information display
+// Update layout information display - SIMPLIFIED (no Zone B special handling)
 function updateLayoutInfo() {
   const layoutInfo = document.getElementById('layout-info');
-  const layoutText = document.getElementById('layout-text');
-  
-  if (currentFilters.zona === 'B') {
-    layoutInfo.classList.add('show');
-    layoutText.innerHTML = '<strong>Urutan:</strong> Z → Y → X → W → V → U → T → S → R → Q → P → O → N2 → N1<br>' +
-                          '<strong>Layout:</strong> Z1-Z9 di kolom paling kanan, Y1-Y9 di sebelah kiri Z, dan seterusnya sampai N1 di kolom paling kiri';
-  } else {
-    layoutInfo.classList.remove('show');
-  }
+  // Always hide layout info since we're not handling Zone B specially
+  layoutInfo.classList.remove('show');
 }
 
 // Apply filters
@@ -859,8 +825,7 @@ function applyFilters() {
   console.log('🔍 Filters applied:', {
     total: allSheetData.length,
     filtered: filteredData.length,
-    filters: currentFilters,
-    isZoneB: currentFilters.zona === 'B'
+    filters: currentFilters
   });
 }
 
@@ -978,14 +943,13 @@ function hasActiveFilters() {
   return currentFilters.warehouse || currentFilters.storage || currentFilters.zona;
 }
 
-// Render warehouse grid - DYNAMIC COLUMN COUNT WITH CENTERING
+// MODIFIED: Render warehouse grid with right-to-left layout (A1-A9 rightmost, B1-B9 to its left)
 function renderGrid() {
   const warehouse = document.getElementById("warehouse");
   warehouse.innerHTML = "";
   
   const isFiltered = hasActiveFilters();
   const displayRacks = getDisplayRacks();
-  const isZoneB = currentFilters.zona === 'B';
   
   // If filter is applied but no data found
   if (isFiltered && displayRacks.length === 0) {
@@ -1012,7 +976,7 @@ function renderGrid() {
     floorTitle.textContent = floor.title;
     floorSection.appendChild(floorTitle);
     
-    // Racking headers - dynamic column count
+    // MODIFIED: Racking headers - create in normal order but CSS will reverse display
     const headerGrid = document.createElement("div");
     headerGrid.className = `racking-grid ${gridClass}`;
     
@@ -1024,7 +988,7 @@ function renderGrid() {
     });
     floorSection.appendChild(headerGrid);
 
-    // Render slot rows for this floor - dynamic column count
+    // MODIFIED: Render slot rows for this floor - create in normal order but CSS will reverse display
     floor.rows.forEach(rowNum => {
       const rowGrid = document.createElement("div");
       rowGrid.className = `racking-grid ${gridClass}`;
@@ -1068,7 +1032,7 @@ function renderGrid() {
     warehouse.appendChild(floorSection);
   });
   
-  console.log(`📋 Grid rendered with ${actualColumns} columns (${gridClass})${isZoneB ? ' [Zone B - Reverse Order]' : ''} - CENTERED:`, displayRacks.join(', '));
+  console.log(`📋 Grid rendered with ${actualColumns} columns (${gridClass}) - RIGHT TO LEFT LAYOUT:`, displayRacks.join(', '));
 }
 
 // Show slot details
@@ -1139,7 +1103,7 @@ function printPage() {
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Warehouse Mapping System initialized');
+  console.log('🚀 Warehouse Mapping System initialized - RIGHT TO LEFT LAYOUT');
   
   // Start datetime updates
   updateDateTime();
