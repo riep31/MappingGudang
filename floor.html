@@ -138,6 +138,56 @@
       50% { opacity: 0.5; }
     }
     
+    /* Navigation Buttons */
+    .nav-container {
+      background: #1a1a2e;
+      border: 1px solid #2d3748;
+      margin: 8px 15px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .nav-btn {
+      background: #6b46c1;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: 2px solid #7c3aed;
+      min-width: 160px;
+      justify-content: center;
+    }
+    
+    .nav-btn:hover {
+      background: #7c3aed;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+    
+    .nav-btn.active {
+      background: #8b5cf6;
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+    
+    .nav-btn:active {
+      transform: translateY(0);
+    }
+    
     .main-content {
       padding: 18px 16px;
       width: 100%;
@@ -339,6 +389,8 @@
       .datetime-display { min-width: 160px; padding: 8px 12px; font-size: 0.8rem; }
       .main-content { padding: 16px 10px; }
       .warehouse-container { padding: 8px; border-radius: 8px; }
+      .nav-buttons { gap: 10px; }
+      .nav-btn { min-width: 140px; padding: 10px 16px; font-size: 0.85rem; }
 
       .racking-grid { grid-template-columns: repeat(17, 32px); gap: 1px; }
       .slot { height: 36px; width: 32px; font-size: 0.4rem; padding: 1px; border-radius: 3px; }
@@ -362,7 +414,7 @@
     /* PRINT STYLES */
     @media print {
       body { background: white !important; color: black !important; }
-      .header { display: none !important; }
+      .header, .nav-container { display: none !important; }
       .main-content { padding: 5px !important; }
       .warehouse-container { background: white !important; border: 1px solid #000 !important; border-radius: 0 !important; }
       .row-label { color: black !important; font-weight: bold !important; }
@@ -404,6 +456,20 @@
   </div>
 </header>
 
+<!-- Navigation Container -->
+<div class="nav-container">
+  <div class="nav-buttons">
+    <button class="nav-btn" onclick="navigateToRack()">
+      <span>📦</span>
+      Mapping Rack
+    </button>
+    <button class="nav-btn active" onclick="navigateToFloor()">
+      <span>🏢</span>
+      Mapping Floor
+    </button>
+  </div>
+</div>
+
 <div class="main-content">
   <div class="warehouse-container">
     <div id="warehouse"></div>
@@ -441,6 +507,31 @@ const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${s
 
 // === DATA STORAGE ===
 let allSheetData = []; 
+
+// Navigation Functions
+function navigateToRack() {
+  // Navigate back to rack mapping page
+  window.location.href = 'https://riep31.github.io/MappingGudang/index.html';
+}
+
+function navigateToFloor() {
+  // This is the current page - just update UI
+  updateNavButtons('floor');
+  console.log('✅ Already on Mapping Floor page');
+}
+
+function updateNavButtons(activeButton) {
+  const buttons = document.querySelectorAll('.nav-btn');
+  buttons.forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  if (activeButton === 'rack') {
+    buttons[0].classList.add('active');
+  } else if (activeButton === 'floor') {
+    buttons[1].classList.add('active');
+  }
+}
 
 // Update date and time
 function updateDateTime() {
@@ -679,6 +770,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Load initial data
   loadData();
+  
+  // Set initial navigation state
+  updateNavButtons('floor');
 });
 </script>
 
