@@ -138,6 +138,56 @@
       50% { opacity: 0.5; }
     }
     
+    /* Navigation Buttons */
+    .nav-container {
+      background: #1a1a2e;
+      border: 1px solid #2d3748;
+      margin: 8px 15px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .nav-btn {
+      background: #6b46c1;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: 2px solid #7c3aed;
+      min-width: 160px;
+      justify-content: center;
+    }
+    
+    .nav-btn:hover {
+      background: #7c3aed;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+    
+    .nav-btn.active {
+      background: #8b5cf6;
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    }
+    
+    .nav-btn:active {
+      transform: translateY(0);
+    }
+    
     .filters-container {
       background: #1a1a2e;
       border: 1px solid #2d3748;
@@ -510,6 +560,8 @@
   .filter-actions { justify-content: center; }
   .main-content { padding: 16px 10px; }
   .warehouse-container { padding: 12px; border-radius: 8px; }
+  .nav-buttons { gap: 10px; }
+  .nav-btn { min-width: 140px; padding: 10px 16px; font-size: 0.85rem; }
 
   /* Grid hitung pas 600px (lebar total = slot * n + gap * (n-1)) */
   .racking-grid.cols-16 { grid-template-columns: repeat(16, 33px); gap: 4px; }
@@ -547,7 +599,7 @@
     /* PRINT STYLES */
     @media print {
       body { background: white !important; color: black !important; }
-      .header, .filters-container { display: none !important; }
+      .header, .filters-container, .nav-container { display: none !important; }
       .main-content { padding: 5px !important; }
       .warehouse-container { background: white !important; border: 1px solid #000 !important; border-radius: 0 !important; }
       .floor-title { color: black !important; font-weight: bold !important; }
@@ -592,6 +644,20 @@
     </button>
   </div>
 </header>
+
+<!-- Navigation Container -->
+<div class="nav-container">
+  <div class="nav-buttons">
+    <button class="nav-btn active" onclick="navigateToRack()">
+      <span>📦</span>
+      Mapping Rack
+    </button>
+    <button class="nav-btn" onclick="navigateToFloor()">
+      <span>🏢</span>
+      Mapping Floor
+    </button>
+  </div>
+</div>
 
 <div class="filters-container">
   <div class="filters-grid">
@@ -675,6 +741,31 @@ let currentFilters = {
   storage: '',
   zona: ''
 };
+
+// Navigation Functions
+function navigateToRack() {
+  // This is the current page - just update UI
+  updateNavButtons('rack');
+  console.log('✅ Already on Mapping Rack page');
+}
+
+function navigateToFloor() {
+  // Navigate to floor mapping page
+  window.location.href = 'https://riep31.github.io/MappingGudang/floor.html';
+}
+
+function updateNavButtons(activeButton) {
+  const buttons = document.querySelectorAll('.nav-btn');
+  buttons.forEach(btn => {
+    btn.classList.remove('active');
+  });
+  
+  if (activeButton === 'rack') {
+    buttons[0].classList.add('active');
+  } else if (activeButton === 'floor') {
+    buttons[1].classList.add('active');
+  }
+}
 
 // Update date and time
 function updateDateTime() {
@@ -1111,6 +1202,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Load initial data
   loadData();
+  
+  // Set initial navigation state
+  updateNavButtons('rack');
 });
 </script>
 
