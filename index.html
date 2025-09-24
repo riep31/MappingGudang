@@ -730,12 +730,15 @@
 // === CONFIGURATION ===
 const sheetID = "1ngP7PTE4mNKtkcTQU5sRYswdYmdC401M4ioxxkt-Hxw";
 const sheetName = "MAPPING";
+const mixedMaterialSheetName = "MIXED MATERIAL";
 const apiKey = "AIzaSyD3nhZyvd7npQw6n9mPXxOA6svJdo_JQis";
 const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!A1:K1000?key=${apiKey}`;
+const mixedMaterialUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${mixedMaterialSheetName}!A1:Z1000?key=${apiKey}`;
 
 // === DATA STORAGE ===
 let allSheetData = []; 
 let filteredData = []; 
+let mixedMaterialData = [];
 let currentFilters = {
   warehouse: '',
   storage: '',
@@ -971,10 +974,18 @@ function updateActiveFiltersDisplay() {
 async function loadData() {
   try {
     console.log('📡 Loading data from Google Sheets...');
-    const res = await fetch(url);
-    const json = await res.json();
+    
+    // Load both sheets in parallel
+    const [mainRes, mixedRes] = await Promise.all([
+      fetch(url),
+      fetch(mixedMaterialUrl).catch(() => ({ values: [] }))
+    ]);
+    
+    const mainJson = await mainRes.json();
+    const mixedJson = await mixedRes.json();
 
-    const rows = json.values;
+    // Process main sheet data
+    const rows = mainJson.values;
     if (!rows || rows.length < 2) {
       throw new Error('No data found in sheet');
     }
@@ -999,6 +1010,23 @@ async function loadData() {
         status: (rowObj["Status"] || "").toLowerCase()
       };
     });
+
+    // Process mixed material data
+    if (mixedJson.values && mixedJson.values.length > 1) {
+      const mixedHeaders = mixedJson.values[0];
+      const mixedDataRows = mixedJson.values.slice(1);
+
+      mixedMaterialData = mixedDataRows.map(r => {
+        const rowObj = {};
+        mixedHeaders.forEach((h, i) => rowObj[h] = r[i] || "");
+        return rowObj;
+      });
+      
+      console.log('✅ Mixed material data loaded:', mixedMaterialData.length, 'items');
+    } else {
+      console.log('⚠️ No mixed material data found');
+      mixedMaterialData = [];
+    }
 
     // Populate filter dropdowns with all data
     populateFilters();
@@ -1126,6 +1154,57 @@ function renderGrid() {
   console.log(`📋 Grid rendered with ${actualColumns} columns (${gridClass}) - RIGHT TO LEFT LAYOUT:`, displayRacks.join(', '));
 }
 
+// Generate mini table for Mix Material
+function generateMixMaterialTable(rackingCode) {
+  // Find all items in mixedMaterialData that match the racking code
+  const matchingItems = mixedMaterialData.filter(item => 
+    item["Racking Code"] && item["Racking Code"].toString().trim() === rackingCode.toString().trim()
+  );
+  
+  if (matchingItems.length === 0) {
+    return '<div style="margin-top: 10px; padding: 8px; background: #2d3748; border-radius: 6px; font-size: 0.8rem; color: #a0aec0;">No mixed material data found for this racking code.</div>';
+  }
+  
+  let tableHtml = `
+    <div style="margin-top: 12px;">
+      <h4 style="color: #63b3ed; font-size: 0.9rem; margin-bottom: 8px; border-bottom: 1px solid #4a5568; padding-bottom: 4px;">📦 Mixed Material Details:</h4>
+      <div style="background: #2d3748; border-radius: 6px; overflow: hidden; border: 1px solid #4a5568;">
+        <table style="width: 100%; font-size: 0.75rem; color: #e2e8f0;">
+          <thead>
+            <tr style="background: #4a5568;">
+              <th style="padding: 6px 8px; text-align: left; border-right: 1px solid #2d3748;">Item</th>
+              <th style="padding: 6px 8px; text-align: center; border-right: 1px solid #2d3748;">Qty</th>
+              <th style="padding: 6px 8px; text-align: center;">Expired</th>
+            </tr>
+          </thead>
+          <tbody>
+  `;
+  
+  matchingItems.forEach((item, index) => {
+    const bgColor = index % 2 === 0 ? '#2d3748' : '#1a202c';
+    const itemDesc = item["Item Description"] || 'N/A';
+    const qty = item["Qty"] || 'N/A';
+    const expired = item["Expired Date"] || 'N/A';
+    
+    tableHtml += `
+      <tr style="background: ${bgColor};">
+        <td style="padding: 6px 8px; border-right: 1px solid #4a5568; word-break: break-word;">${itemDesc}</td>
+        <td style="padding: 6px 8px; text-align: center; border-right: 1px solid #4a5568;">${qty}</td>
+        <td style="padding: 6px 8px; text-align: center;">${expired}</td>
+      </tr>
+    `;
+  });
+  
+  tableHtml += `
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  
+  return tableHtml;
+}
+
 // Show slot details
 function showDetail(kode, data) {
   const info = document.getElementById("info");
@@ -1139,12 +1218,13 @@ function showDetail(kode, data) {
       statusIcon = "🔴";
     }
     
-    info.innerHTML = `
-      <p><strong>Slot:</strong> ${kode}</p>
+    // Base info without Slot
+    let infoHtml = `
       <p><strong>Warehouse:</strong> ${data.warehouse}</p>
       <p><strong>Storage:</strong> ${data.storage}</p>
       <p><strong>Zone:</strong> ${data.zona}</p>
       <p><strong>Racking:</strong> ${data.racking}</p>
+      <p><strong>Racking Code:</strong> ${data.rackingCode}</p>
       <p><strong>Floor:</strong> ${data.floor}</p>
       <p><strong>Position:</strong> ${data.raws}</p>
       <p><strong>Item:</strong> ${data.barang}</p>
@@ -1152,9 +1232,15 @@ function showDetail(kode, data) {
       <p><strong>Expired:</strong> ${data.expired}</p>
       <p><strong>Status:</strong> ${statusIcon} ${statusText}</p>
     `;
+    
+    // Check if item is "Mix Material" and add mini table
+    if (data.barang && data.barang.toLowerCase().includes('mix material') && data.rackingCode) {
+      infoHtml += generateMixMaterialTable(data.rackingCode);
+    }
+    
+    info.innerHTML = infoHtml;
   } else {
     info.innerHTML = `
-      <p><strong>Slot:</strong> ${kode}</p>
       <p><strong>Status:</strong> ⚪ KOSONG</p>
     `;
   }
