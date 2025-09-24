@@ -621,13 +621,13 @@ async function refreshData() {
   }
 }
 
-// Render warehouse grid with L-M-N-O-P-Q-R-S-T-U-V-W-X-Y-Z-AA-AB layout (left to right)
+// Render warehouse grid with AB-AA-Z-Y-X-W-V-U-T-S-R-Q-P-O-N-M-L layout (AB on left, L on right)
 function renderGrid() {
   const warehouse = document.getElementById("warehouse");
   warehouse.innerHTML = "";
   
-  // Define racks from L to AB (17 columns total)
-  const displayRacks = ["L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB"];
+  // Define racks from AB to L (reversed order - AB is now leftmost)
+  const displayRacks = ["AB", "AA", "Z", "Y", "X", "W", "V", "U", "T", "S", "R", "Q", "P", "O", "N", "M", "L"];
   
   const gridSection = document.createElement("div");
   gridSection.className = "grid-section";
@@ -691,7 +691,7 @@ function renderGrid() {
   
   warehouse.appendChild(gridSection);
   
-  console.log('📋 Grid rendered with L-M-N-O-P-Q-R-S-T-U-V-W-X-Y-Z-AA-AB layout (baris 1 bottom, baris 4 top)');
+  console.log('📋 Grid rendered with AB-AA-Z-Y-X-W-V-U-T-S-R-Q-P-O-N-M-L layout (AB leftmost, L rightmost)');
 }
 
 // Show slot details
@@ -762,7 +762,7 @@ function printPage() {
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Warehouse Mapping System initialized - L to AB layout (baris 1 bottom)');
+  console.log('🚀 Warehouse Mapping System initialized - AB to L layout (AB leftmost)');
   
   // Start datetime updates
   updateDateTime();
