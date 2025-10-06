@@ -388,11 +388,10 @@
       justify-content: center;
       margin-left: auto;
       margin-right: auto;
-      /* MODIFIED: Direction reversed for right-to-left layout */
       direction: rtl;
     }
     
-    /* Dynamic grid column classes - MODIFIED: direction for slots */
+    /* Dynamic grid column classes */
     .racking-grid.cols-16 { grid-template-columns: repeat(16, 105px); }
     .racking-grid.cols-15 { grid-template-columns: repeat(15, 105px); }
     .racking-grid.cols-14 { grid-template-columns: repeat(14, 105px); }
@@ -418,7 +417,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       border-radius: 4px;
-      /* MODIFIED: Reset direction for text display */
       direction: ltr;
     }
     
@@ -443,7 +441,6 @@
       text-overflow: ellipsis;
       line-height: 1.2;
       hyphens: auto;
-      /* MODIFIED: Reset direction for text display */
       direction: ltr;
     }
     
@@ -563,7 +560,6 @@
   .nav-buttons { gap: 10px; }
   .nav-btn { min-width: 140px; padding: 10px 16px; font-size: 0.85rem; }
 
-  /* Grid hitung pas 600px (lebar total = slot * n + gap * (n-1)) */
   .racking-grid.cols-16 { grid-template-columns: repeat(16, 33px); gap: 4px; }
   .racking-grid.cols-15 { grid-template-columns: repeat(15, 36px); gap: 4px; }
   .racking-grid.cols-14 { grid-template-columns: repeat(14, 39px); gap: 4px; }
@@ -732,7 +728,7 @@ const sheetID = "1ngP7PTE4mNKtkcTQU5sRYswdYmdC401M4ioxxkt-Hxw";
 const sheetName = "MAPPING";
 const mixedMaterialSheetName = "MIXED MATERIAL";
 const apiKey = "AIzaSyD3nhZyvd7npQw6n9mPXxOA6svJdo_JQis";
-const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!A1:K1000?key=${apiKey}`;
+const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}!A1:L1000?key=${apiKey}`;
 const mixedMaterialUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${mixedMaterialSheetName}!A1:Z1000?key=${apiKey}`;
 
 // === DATA STORAGE ===
@@ -747,13 +743,11 @@ let currentFilters = {
 
 // Navigation Functions
 function navigateToRack() {
-  // This is the current page - just update UI
   updateNavButtons('rack');
   console.log('✅ Already on Mapping Rack page');
 }
 
 function navigateToFloor() {
-  // Navigate to floor mapping page
   window.location.href = 'https://riep31.github.io/MappingGudang/floor.html';
 }
 
@@ -801,6 +795,19 @@ function generateKode(racking, floor, raws) {
   return rakLabel + index;
 }
 
+// MODIFIED: Extract first phrase (before first dash) from Item Description
+function extractFirstPhrase(itemDescription) {
+  if (!itemDescription || itemDescription.trim() === '') {
+    return '';
+  }
+  
+  // Split by dash and get first part (everything before first dash)
+  const parts = itemDescription.split('-');
+  const firstPhrase = parts[0].trim();
+  
+  return firstPhrase;
+}
+
 // Get unique values for dropdown filters
 function getUniqueValues(data, field) {
   const values = data
@@ -817,17 +824,14 @@ function populateFilters() {
   const storageSelect = document.getElementById('storage-filter');
   const zonaSelect = document.getElementById('zona-filter');
   
-  // Clear existing options
   warehouseSelect.innerHTML = '<option value="">All Warehouses</option>';
   storageSelect.innerHTML = '<option value="">All Storage Options</option>';
   zonaSelect.innerHTML = '<option value="">All Zones</option>';
   
-  // Get unique values from allSheetData
   const warehouses = getUniqueValues(allSheetData, 'warehouse');
   const storages = getUniqueValues(allSheetData, 'storage');
   const zonas = getUniqueValues(allSheetData, 'zona');
   
-  // Populate options
   warehouses.forEach(warehouse => {
     const option = document.createElement('option');
     option.value = warehouse;
@@ -856,32 +860,27 @@ function populateFilters() {
   });
 }
 
-// MODIFIED: Get display racks in normal A-P order (no Zone B special handling)
+// Get display racks
 function getDisplayRacks() {
   if (!hasActiveFilters()) {
-    // No filters applied, show default A-P (16 columns)
     return "ABCDEFGHIJKLMNOP".split("");
   }
   
   if (filteredData.length === 0) {
-    // Filter applied but no data, return empty array
     return [];
   }
   
-  // Get unique racks from filtered data and sort them normally
   let availableRacks = [...new Set(filteredData.map(item => {
     const rackLabel = item.racking.replace("Racking ", "").trim();
     return rackLabel;
   }))].sort();
   
-  // Return exactly the available racks (dynamic column count) - normal order
   return availableRacks;
 }
 
-// Update layout information display - SIMPLIFIED (no Zone B special handling)
+// Update layout information display
 function updateLayoutInfo() {
   const layoutInfo = document.getElementById('layout-info');
-  // Always hide layout info since we're not handling Zone B specially
   layoutInfo.classList.remove('show');
 }
 
@@ -891,14 +890,12 @@ function applyFilters() {
   const storageFilter = document.getElementById('storage-filter').value;
   const zonaFilter = document.getElementById('zona-filter').value;
   
-  // Update current filters
   currentFilters = {
     warehouse: warehouseFilter,
     storage: storageFilter,
     zona: zonaFilter
   };
   
-  // Filter data from allSheetData
   filteredData = allSheetData.filter(item => {
     const matchWarehouse = !warehouseFilter || item.warehouse === warehouseFilter;
     const matchStorage = !storageFilter || item.storage === storageFilter;
@@ -907,13 +904,8 @@ function applyFilters() {
     return matchWarehouse && matchStorage && matchZona;
   });
   
-  // Update active filters display
   updateActiveFiltersDisplay();
-  
-  // Update layout information
   updateLayoutInfo();
-  
-  // Re-render grid with filtered data
   renderGrid();
   
   console.log('🔍 Filters applied:', {
@@ -935,7 +927,7 @@ function clearFilters() {
     zona: ''
   };
   
-  filteredData = []; // Reset to empty to show default grid
+  filteredData = [];
   updateActiveFiltersDisplay();
   updateLayoutInfo();
   renderGrid();
@@ -975,7 +967,6 @@ async function loadData() {
   try {
     console.log('📡 Loading data from Google Sheets...');
     
-    // Load both sheets in parallel
     const [mainRes, mixedRes] = await Promise.all([
       fetch(url),
       fetch(mixedMaterialUrl).catch(() => ({ values: [] }))
@@ -984,7 +975,6 @@ async function loadData() {
     const mainJson = await mainRes.json();
     const mixedJson = await mixedRes.json();
 
-    // Process main sheet data
     const rows = mainJson.values;
     if (!rows || rows.length < 2) {
       throw new Error('No data found in sheet');
@@ -1004,14 +994,15 @@ async function loadData() {
         racking: rowObj["Racking"] || "",
         floor: Number(rowObj["Floor"]) || 0,
         raws: rowObj["Raws"] || "",
+        itemDescription: rowObj["Item Description"] || "",
         barang: (rowObj["Item Description"] || "").split("-").slice(0,2).join("-").trim(),
         qty: rowObj["Qty"] || "",
         expired: rowObj["Expired Date"] || "",
-        status: (rowObj["Status"] || "").toLowerCase()
+        status: (rowObj["Status"] || "").toLowerCase(),
+        noLot: rowObj["No. Lot"] || ""
       };
     });
 
-    // Process mixed material data
     if (mixedJson.values && mixedJson.values.length > 1) {
       const mixedHeaders = mixedJson.values[0];
       const mixedDataRows = mixedJson.values.slice(1);
@@ -1028,10 +1019,7 @@ async function loadData() {
       mixedMaterialData = [];
     }
 
-    // Populate filter dropdowns with all data
     populateFilters();
-    
-    // Render default grid initially (filteredData is empty, will show A-P)
     renderGrid();
     
     console.log('📊 Data loaded successfully:', allSheetData.length, 'items');
@@ -1062,7 +1050,7 @@ function hasActiveFilters() {
   return currentFilters.warehouse || currentFilters.storage || currentFilters.zona;
 }
 
-// MODIFIED: Render warehouse grid with right-to-left layout (A1-A9 rightmost, B1-B9 to its left)
+// MODIFIED: Render warehouse grid with new slot display format
 function renderGrid() {
   const warehouse = document.getElementById("warehouse");
   warehouse.innerHTML = "";
@@ -1070,15 +1058,13 @@ function renderGrid() {
   const isFiltered = hasActiveFilters();
   const displayRacks = getDisplayRacks();
   
-  // If filter is applied but no data found
   if (isFiltered && displayRacks.length === 0) {
     warehouse.innerHTML = '<div class="no-data-message">No data found matching the current filters.</div>';
     return;
   }
   
-  // Determine actual column count and CSS class
   const actualColumns = displayRacks.length;
-  const gridClass = `cols-${Math.max(10, Math.min(16, actualColumns))}`; // Limit between 10-16
+  const gridClass = `cols-${Math.max(10, Math.min(16, actualColumns))}`;
   
   const floors = [
     { title: "Floor 3", rows: [1, 2, 3] },
@@ -1095,7 +1081,6 @@ function renderGrid() {
     floorTitle.textContent = floor.title;
     floorSection.appendChild(floorTitle);
     
-    // MODIFIED: Racking headers - create in normal order but CSS will reverse display
     const headerGrid = document.createElement("div");
     headerGrid.className = `racking-grid ${gridClass}`;
     
@@ -1107,7 +1092,6 @@ function renderGrid() {
     });
     floorSection.appendChild(headerGrid);
 
-    // MODIFIED: Render slot rows for this floor - create in normal order but CSS will reverse display
     floor.rows.forEach(rowNum => {
       const rowGrid = document.createElement("div");
       rowGrid.className = `racking-grid ${gridClass}`;
@@ -1118,23 +1102,26 @@ function renderGrid() {
         
         const kode = rak + rowNum;
         
-        // Find slot data if filter is applied
         let slotData = null;
         if (isFiltered) {
           slotData = filteredData.find(d => generateKode(d.racking, d.floor, d.raws) === kode);
         }
 
-        if (slotData && slotData.barang) {
-          div.textContent = slotData.barang;
+        if (slotData && slotData.itemDescription) {
+          // MODIFIED: Extract first phrase (before dash) and combine with No. Lot
+          const firstPhrase = extractFirstPhrase(slotData.itemDescription);
+          const noLot = slotData.noLot || '';
+          const displayText = noLot ? `${firstPhrase} - ${noLot}` : firstPhrase;
           
-          // Check status from column K (Status)
+          div.textContent = displayText;
+          
           if (slotData.status && slotData.status.toLowerCase().trim() === "kosong") {
             div.classList.add("status-kosong-sheet");
           } else {
             div.classList.add("status-terisi");
           }
           
-          div.title = `${kode} | ${slotData.barang} (Qty: ${slotData.qty})`;
+          div.title = `${kode} | ${slotData.barang} | Lot: ${noLot}`;
           div.onclick = () => showDetail(kode, slotData);
         } else {
           div.textContent = kode;
@@ -1151,12 +1138,11 @@ function renderGrid() {
     warehouse.appendChild(floorSection);
   });
   
-  console.log(`📋 Grid rendered with ${actualColumns} columns (${gridClass}) - RIGHT TO LEFT LAYOUT:`, displayRacks.join(', '));
+  console.log(`📋 Grid rendered with ${actualColumns} columns (${gridClass}):`, displayRacks.join(', '));
 }
 
 // Generate mini table for Mix Material
 function generateMixMaterialTable(rackingCode) {
-  // Find all items in mixedMaterialData that match the racking code
   const matchingItems = mixedMaterialData.filter(item => 
     item["Racking Code"] && item["Racking Code"].toString().trim() === rackingCode.toString().trim()
   );
@@ -1205,26 +1191,25 @@ function generateMixMaterialTable(rackingCode) {
   return tableHtml;
 }
 
-// Show slot details
+// MODIFIED: Show slot details with No. Lot field
 function showDetail(kode, data) {
   const info = document.getElementById("info");
   if (data) {
     let statusIcon = "✅";
     let statusText = "TERISI";
     
-    // Check if status from sheet is "KOSONG"
     if (data.status && data.status.toLowerCase().trim() === "kosong") {
       statusText = "KOSONG (SHEET)";
       statusIcon = "🔴";
     }
     
-    // Base info without Slot
     let infoHtml = `
       <p><strong>Warehouse:</strong> ${data.warehouse}</p>
       <p><strong>Storage:</strong> ${data.storage}</p>
       <p><strong>Zone:</strong> ${data.zona}</p>
       <p><strong>Racking:</strong> ${data.racking}</p>
       <p><strong>Racking Code:</strong> ${data.rackingCode}</p>
+      <p><strong>No. Lot:</strong> ${data.noLot || 'N/A'}</p>
       <p><strong>Floor:</strong> ${data.floor}</p>
       <p><strong>Position:</strong> ${data.raws}</p>
       <p><strong>Item:</strong> ${data.barang}</p>
@@ -1233,7 +1218,6 @@ function showDetail(kode, data) {
       <p><strong>Status:</strong> ${statusIcon} ${statusText}</p>
     `;
     
-    // Check if item is "Mix Material" and add mini table
     if (data.barang && data.barang.toLowerCase().includes('mix material') && data.rackingCode) {
       infoHtml += generateMixMaterialTable(data.rackingCode);
     }
@@ -1252,7 +1236,6 @@ function printPage() {
   btn.classList.add('loading');
   
   try {
-    // Add print title to document
     const originalTitle = document.title;
     const now = new Date();
     const dateStr = now.toLocaleDateString('id-ID');
@@ -1260,10 +1243,8 @@ function printPage() {
     
     document.title = `Warehouse Mapping - ${dateStr} ${timeStr}`;
     
-    // Trigger browser print dialog
     window.print();
     
-    // Restore original title
     document.title = originalTitle;
     
     console.log('🖨️ Print dialog opened');
@@ -1280,16 +1261,13 @@ function printPage() {
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Warehouse Mapping System initialized - RIGHT TO LEFT LAYOUT');
+  console.log('🚀 Warehouse Mapping System initialized - Modified Display (First Phrase + Lot)');
   
-  // Start datetime updates
   updateDateTime();
   setInterval(updateDateTime, 1000);
   
-  // Load initial data
   loadData();
   
-  // Set initial navigation state
   updateNavButtons('rack');
 });
 </script>
